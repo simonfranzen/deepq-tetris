@@ -27,29 +27,26 @@ def main():
     tetris_environment = TetrisEnvironment()
 
     with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
+
+        while True:
+            if input_queue.qsize() > 0:
+                key = input_queue.get()
+                if key == 'q':
+                    print('Exit GAME')
+                    is_running = False
+                    break
+                elif key == 'a':
+                    tetris_environment.move_left()
+                elif key == 'd':
+                    tetris_environment.move_right()
+                elif key == 's':
+                    tetris_environment.move_down()
+
+            tetris_environment.wait()
+            time.sleep(0.5)
+            print(tetris_environment)
+
         listener.join()
-
-    print("after keyboard listener")
-
-    while True:
-        if input_queue.qsize() > 0:
-            key = input_queue.get()
-            if key == 'q':
-                print('Exit GAME')
-                is_running = False
-                break
-            elif key == 'a':
-                tetris_environment.move_left()
-            elif key == 'd':
-                tetris_environment.move_right()
-            elif key == 's':
-                tetris_environment.move_down()
-            else:
-                tetris_environment.wait()
-
-        time.sleep(0.5)
-        print(tetris_environment)
-
 
 
 if __name__ == '__main__':
