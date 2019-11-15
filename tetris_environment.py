@@ -20,9 +20,9 @@ class TetrisEnvironment:
         self.gameover = False
         self.rows = rows
         self.cols = cols
-        self.padding = 2
+        self.padding = 3
         self.grid = np.zeros([rows+self.padding,cols+2*self.padding], np.int8)
-        self.grid[:,0:2] = -1
+        self.grid[:,0:self.padding] = -1
         self.grid[:,cols+self.padding:] = -1
         self.grid[rows:,:] = -1
 
