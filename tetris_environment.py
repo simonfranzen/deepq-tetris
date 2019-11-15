@@ -81,7 +81,7 @@ class TetrisEnvironment:
         self.active_tetromino = self.next_tetromino
         self.next_tetromino = Tetromino()
         self.at_row = 0
-        self.at_col = int(self.cols/2) + self.padding
+        self.at_col = int(self.cols/2) + self.padding - 1
         self.gameover = self._tetromino_overlaps(self.active_tetromino,
                                                  self.at_row, self.at_col)
         if self.gameover:
@@ -127,12 +127,15 @@ class TetrisEnvironment:
         while not self._tetromino_overlaps(self.active_tetromino, at_newrow+1, self.at_col):
             at_newrow += 1
         self.at_row = at_newrow
+        return self.wait()
 
     def move_right(self):
         self._move(+1)
+        return 0
 
     def move_left(self):
         self._move(-1)
+        return 0
 
     def _move(self,m):
         at_newcol = self.at_col + m
@@ -141,9 +144,11 @@ class TetrisEnvironment:
 
     def rotate_right(self):
         self._rotate(-1)
+        return 0
 
     def rotate_left(self):
         self._rotate(+1)
+        return 0
 
     def _rotate(self, s):
         self.active_tetromino.rotate(s)
