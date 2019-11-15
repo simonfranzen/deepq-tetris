@@ -107,27 +107,28 @@ class TetrisEnvironment:
                 r = r - 1
         return num_cleared_rows
 
-
     def move_down(self):
         print('move down')
 
     def move_right(self):
-        self.at_col = min(self.at_col+1, self.cols-self.active_tetromino.size)
+        self._move(+1)
 
     def move_left(self):
-        self.at_col = max(self.at_col-1, 0)
+        self._move(-1)
+
+    def _move(self,m):
+        at_newcol = max(min(self.at_col+m, self.cols-self.active_tetromino.size),0)
+        if not self._tetromino_overlaps(self.active_tetromino, self.at_row, at_newcol):
+            self.at_col = at_newcol
 
     def rotate_right(self):
-        print('rotate right')
+        self._rotate(-1)
 
     def rotate_left(self):
-        print('rotate left')
+        self._rotate(+1)
 
+    def _rotate(self, s):
+        self.active_tetromino.rotate(s)
+        if not self._tetromino_overlaps(self.active_tetromino, self.at_row, self.at_col):
+            self.active_tetromino.rotate(-s)
 
-
-if __name__ == "__main__":
-    env = TetrisEnvironment()
-    while not env.gameover:
-        print(env)
-        env.wait()
-    print('Game over!')
