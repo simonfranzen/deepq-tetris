@@ -123,6 +123,13 @@ class TetrisEnvironment:
     def move_left():
         print('move left')
 
+    def rotate_right():
+        print('rotate right')
+
+    def rotate_left():
+        print('rotate left')
+
+
 
 if __name__ == "__main__":
     env = TetrisEnvironment()

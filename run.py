@@ -1,14 +1,14 @@
-import threading
 import queue
 import time
 import os
-
 from pynput import keyboard
-
 from tetris_environment import TetrisEnvironment
 
 
 input_queue = queue.Queue()
+
+
+clear = lambda:  os.system('cls' if os.name=='nt' else 'clear')
 
 def on_press(key):
         try:
@@ -23,27 +23,29 @@ def on_release(key):
 
 
 def main():
-
     tetris_environment = TetrisEnvironment()
-
     with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
-
         while True:
             if input_queue.qsize() > 0:
                 key = input_queue.get()
+                print(key)
                 if key == 'q':
-                    print('Exit GAME')
-                    is_running = False
+                    print('Exit the GAME')
                     break
-                elif key == 'a':
+                elif key == 'a' or key == '\x1b[D':
                     tetris_environment.move_left()
-                elif key == 'd':
+                elif key == 'd' or key == '\x1b[C':
                     tetris_environment.move_right()
-                elif key == 's':
+                elif key == 's' or key == '\x1b[B':
                     tetris_environment.move_down()
+                elif key == 'w' or key == '\x1b[A' or key == '.':
+                    tetris_environment.rotate_right()
+                elif key == ',':
+                    tetris_environment.rotate_left()
 
             tetris_environment.wait()
             time.sleep(0.5)
+            clear()
             print(tetris_environment)
 
         listener.join()
