@@ -47,3 +47,16 @@ class Tetromino:
     @property
     def size(self):
         return np.size(self.grid, 0)
+
+    def __str__(self):
+        lines = []
+        for row in self.grid:
+            elements = []
+            for col in row:
+                if col != 0:
+                    elements.append(format(col))
+                else:
+                    elements.append(' ')
+            lines.append(' '.join(elements))
+        return '\n'.join(lines);
+
