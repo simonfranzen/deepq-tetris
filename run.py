@@ -42,9 +42,12 @@ def main():
                     tetris_environment.rotate_right()
                 elif key == ',':
                     tetris_environment.rotate_left()
+            
 
+            # render game
+            input_queue.queue.clear()
+            time.sleep(0.5)
             tetris_environment.wait()
-            time.sleep(0.1)
             clear()
             print(tetris_environment)
 
