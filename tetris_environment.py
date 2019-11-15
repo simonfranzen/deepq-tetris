@@ -49,16 +49,32 @@ class TetrisEnvironment:
         bar = (2*self.cols-1)*'='
         header = ' deep-Q TETRIS '.center(2*self.cols-1,'=')
         lines = [bar,header,bar]
+        current_row = 0
         for r in range(self.rows):
             elements = []
             for c in range(self.cols):
                 v = printed_grid[r,c]
                 elements.append(color('{}'.format(v),blockcolors[v]))
+            if(current_row == 3):
+                elements.append('     SCORE: {0}'.format(self.score))
             lines.append(' '.join(elements))
+            current_row = current_row +1
         lines.append(bar)
-        lines.append('SCORE: {0}'.format(self.score))
-        lines.append('NEXT:\n{0}'.format(self.next_tetromino))
+        lines = lines + self.draw_next()
         return '\n'.join(lines)
+
+
+    def draw_next(self):
+        tetromino_rows = format(self.next_tetromino).split('\n')
+        lines = []
+        lines.append('N E X T:')
+        lines.append('')
+        lines.append('-----------')
+        for r in tetromino_rows:
+            lines.append('|'+r+' |')
+        lines.append('-----------')
+        return lines
+
 
     def _spawn_new_tetromino(self):
         assert self.active_tetromino is None
