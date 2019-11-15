@@ -1,5 +1,5 @@
 import numpy as np
-from tetrominos import *
+from tetromino import *
 
 colorcodes = {
     'black':30,
@@ -40,7 +40,7 @@ class TetrisEnvironment:
         self.at_col = None
 
         # already determine which tetromimo we want next
-        self.next_tetromino = Tetrominos().get_tetromino()
+        self.next_tetromino = Tetromino().get()
 
     @property
     def gameover(self):
@@ -70,7 +70,7 @@ class TetrisEnvironment:
     def _spawn_new_tetromino(self):
         assert self.active_tetromino is None
         self.active_tetromino = self.next_tetromino
-        self.next_tetromino = Tetrominos().get_tetromino()
+        self.next_tetromino = Tetromino().get()
         self.at_row = 0
         self.at_col = round(self.cols/2) - np.size(self.active_tetromino,1)
         #self._gameover = self._tetromino_overlaps(self.active_tetromino,
