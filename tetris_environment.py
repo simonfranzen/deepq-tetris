@@ -68,6 +68,8 @@ class TetrisEnvironment:
         self.at_col = int(self.cols/2) + self.padding
         self.gameover = self._tetromino_overlaps(self.active_tetromino,
                                                  self.at_row, self.at_col)
+        if self.gameover:
+            self.active_tetromino = None
 
     def _tetromino_overlaps(self, t, r, c):
         return not np.all(t.grid * self.grid[r:r+t.size,
@@ -131,7 +133,3 @@ class TetrisEnvironment:
         self.active_tetromino.rotate(s)
         if self._tetromino_overlaps(self.active_tetromino, self.at_row, self.at_col):
             self.active_tetromino.rotate(-s)
-
-env = TetrisEnvironment()
-print(env.grid)
-print(env)
