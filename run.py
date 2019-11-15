@@ -3,7 +3,7 @@ import time
 import os
 from pynput import keyboard
 from tetris_environment import TetrisEnvironment
-
+from audio_player import AudioPlayer
 
 input_queue = queue.Queue()
 clear = lambda:  os.system('cls' if os.name=='nt' else 'clear')
@@ -21,6 +21,8 @@ def on_release(key):
 
 
 def main():
+    player = AudioPlayer()
+    player.play()
     tetris_environment = TetrisEnvironment()
     timer = 0
     with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
