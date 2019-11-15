@@ -4,6 +4,7 @@ import os
 from pynput import keyboard
 from tetris_environment import TetrisEnvironment
 from audio_player import AudioPlayer
+from highscore import Highscore
 
 input_queue = queue.Queue()
 clear = lambda:  os.system('cls' if os.name=='nt' else 'clear')
@@ -55,8 +56,13 @@ def main():
             timer += 1
             time.sleep(1/FPS)
 
+        player.stop()
         print('GAME OVER')
         print('YOUR SCORE: {0}'.format(tetris_environment.score))
+        print('')
+        highscore = Highscore()
+        highscore.write(tetris_environment.score)
+        print(highscore)
         # listener.join()
 
 
