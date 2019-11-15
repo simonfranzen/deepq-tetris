@@ -36,7 +36,7 @@ def main():
                 elif key == 'd' or key == '\x1b[C'  or key == keyboard.Key.right:
                     tetris_environment.move_right()
                 elif key == 's' or key == '\x1b[B'  or key == keyboard.Key.down:
-                    tetris_environment.move_down()
+                    tetris_environment.drop()
                 elif key == 'w' or key == '\x1b[A' or key == '.' or key == keyboard.Key.up:
                     tetris_environment.rotate_right()
                 elif key == ',':
