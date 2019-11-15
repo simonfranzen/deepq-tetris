@@ -7,7 +7,7 @@ from tetris_environment import TetrisEnvironment
 
 input_queue = queue.Queue()
 clear = lambda:  os.system('cls' if os.name=='nt' else 'clear')
-FPS = 30
+FPS = 15
 
 def on_press(key):
         try:
@@ -53,7 +53,9 @@ def main():
             timer += 1
             time.sleep(1/FPS)
 
-        listener.join()
+        print('GAME OVER')
+        print('YOUR SCORE: {0}'.format(tetris_environment.score))
+        # listener.join()
 
 
 if __name__ == '__main__':
