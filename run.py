@@ -11,7 +11,7 @@ FPS = 30
 
 def on_press(key):
         try:
-            input_queue.put(key)
+            input_queue.put(key.char if hasattr(key, 'char') else key)
         except:
             print('Error wit key {0}.'.format(key))
 
