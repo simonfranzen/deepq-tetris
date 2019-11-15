@@ -3,30 +3,7 @@ import numpy as np
 import time
 
 from tetromino import *
-
-colorcodes = {
-    'black':30,
-    'red':31,
-    'green':32,
-    'yellow':33,
-    'blue':34,
-    'purple':35,
-    'cyan':36,
-    'white':37}
-
-blockcolors = {
-    0:'black',
-    1:'red',
-    2:'green',
-    3:'yellow',
-    4:'blue',
-    5:'purple',
-    6:'cyan',
-    7:'white'}
-
-def color(s, c):
-    return '\033[1;{};40m{}\033[0m'.format(colorcodes[c.lower()],s)
-
+from colors import *
 
 class TetrisEnvironment:
 
@@ -50,7 +27,7 @@ class TetrisEnvironment:
         fg = self.grid.copy()
         if self.active_tetromino is not None:
             fg[self.at_row:self.at_row+self.active_tetromino.size,
-               self.at_col:self.at_col+self.active_tetromino.size] += self.active_tetromino.as_array()
+               self.at_col:self.at_col+self.active_tetromino.size] += self.active_tetromino.grid
         return fg
 
     def __str__(self):
@@ -77,28 +54,28 @@ class TetrisEnvironment:
                                                  self.at_row, self.at_col)
 
     def _tetromino_overlaps(self, t, r, c):
-        print('r', r)
-        print('c', c)
-        print('t', t.as_array())
-        return not np.all(t.as_array() * self.grid[r:r+t.size,
-                                                   c:c+t.size] == 0)
+        #print('r', r)
+        #print('c', c)
+        #print('t', t.grid)
+        return not np.all(t.grid * self.grid[r:r+t.size,
+                                             c:c+t.size] == 0)
 
     def wait(self):
         if self.active_tetromino is None:
-            print('spawning new tetromino')
+            #print('spawning new tetromino')
             self._spawn_new_tetromino()
         else:
             # check if we can still move the active tetromino down
             if self.at_row == self.rows - self.active_tetromino.size \
             or self._tetromino_overlaps(self.active_tetromino, self.at_row+1, self.at_col):
                 # ... nope! this is the end ...
-                print('no space')
+                #print('no space')
                 self.grid = self._filled_grid() # dump the active tetro into the grid
                 self.active_tetromino = None
                 self._clear_rows()
                 self._spawn_new_tetromino()
             else:
-                print('we have space -> moving')
+                #print('we have space -> moving')
                 self.at_row = self.at_row + 1
 
     def _clear_rows(self):
@@ -128,6 +105,5 @@ if __name__ == "__main__":
     env = TetrisEnvironment()
     while not env.gameover:
         print(env)
-        time.sleep(0.1)
         env.wait()
     print('Game over!')
