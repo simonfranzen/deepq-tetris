@@ -91,19 +91,19 @@ class TetrisEnvironment:
         return num_cleared_rows
 
 
-    def move_down():
+    def move_down(self):
         print('move down')
 
-    def move_right():
-        self.at_cols = max(self.at_cols+1, self.cols-self.active_tetromino.size)
+    def move_right(self):
+        self.at_col = max(self.at_col+1, self.cols-self.active_tetromino.size)
 
-    def move_left():
-        self.at_cols = min(self.at_cols-1, 0)
+    def move_left(self):
+        self.at_col = min(self.at_col-1, 0)
 
-    def rotate_right():
+    def rotate_right(self):
         print('rotate right')
 
-    def rotate_left():
+    def rotate_left(self):
         print('rotate left')
 
 

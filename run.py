@@ -44,7 +44,7 @@ def main():
                     tetris_environment.rotate_left()
 
             tetris_environment.wait()
-            time.sleep(0.5)
+            time.sleep(0.1)
             clear()
             print(tetris_environment)
 
