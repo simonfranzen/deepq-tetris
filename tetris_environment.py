@@ -49,23 +49,39 @@ class TetrisEnvironment:
         bar = (2*self.cols-1)*'='
         header = ' deep-Q TETRIS '.center(2*self.cols-1,'=')
         lines = [bar,header,bar]
+        current_row = 0
         for r in range(self.rows):
             elements = []
             for c in range(self.cols):
                 v = printed_grid[r,c]
                 elements.append(color('{}'.format(v),blockcolors[v]))
+            if(current_row == 3):
+                elements.append('     SCORE: {0}'.format(self.score))
             lines.append(' '.join(elements))
+            current_row = current_row +1
         lines.append(bar)
-        lines.append('SCORE: {0}'.format(self.score))
-        lines.append('NEXT:\n{0}'.format(self.next_tetromino))
+        lines = lines + self.draw_next()
         return '\n'.join(lines)
+
+
+    def draw_next(self):
+        tetromino_rows = format(self.next_tetromino).split('\n')
+        lines = []
+        lines.append('N E X T:')
+        lines.append('')
+        lines.append('-----------')
+        for r in tetromino_rows:
+            lines.append('|'+r+' |')
+        lines.append('-----------')
+        return lines
+
 
     def _spawn_new_tetromino(self):
         assert self.active_tetromino is None
         self.active_tetromino = self.next_tetromino
         self.next_tetromino = Tetromino()
         self.at_row = 0
-        self.at_col = int(self.cols/2) + self.padding
+        self.at_col = int(self.cols/2) + self.padding - 1
         self.gameover = self._tetromino_overlaps(self.active_tetromino,
                                                  self.at_row, self.at_col)
         if self.gameover:
@@ -111,12 +127,15 @@ class TetrisEnvironment:
         while not self._tetromino_overlaps(self.active_tetromino, at_newrow+1, self.at_col):
             at_newrow += 1
         self.at_row = at_newrow
+        return self.wait()
 
     def move_right(self):
         self._move(+1)
+        return 0
 
     def move_left(self):
         self._move(-1)
+        return 0
 
     def _move(self,m):
         at_newcol = self.at_col + m
@@ -125,9 +144,11 @@ class TetrisEnvironment:
 
     def rotate_right(self):
         self._rotate(-1)
+        return 0
 
     def rotate_left(self):
         self._rotate(+1)
+        return 0
 
     def _rotate(self, s):
         self.active_tetromino.rotate(s)
