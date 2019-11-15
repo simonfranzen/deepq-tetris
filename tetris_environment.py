@@ -20,6 +20,9 @@ class TetrisEnvironment:
         self.at_row = None
         self.at_col = None
 
+        # scores and levels
+        self.score = 0
+
         # already determine which tetromimo we want next
         self.next_tetromino = Tetromino()
 
@@ -42,6 +45,7 @@ class TetrisEnvironment:
                 elements.append(color('{}'.format(v),blockcolors[v]))
             lines.append(' '.join(elements))
         lines.append(bar)
+        lines.append('SCORE: {0}'.format(self.score))
         return '\n'.join(lines)
 
     def _spawn_new_tetromino(self):
@@ -60,7 +64,17 @@ class TetrisEnvironment:
         return not np.all(t.grid * self.grid[r:r+t.size,
                                              c:c+t.size] == 0)
 
+    def score_for_rows(self):
+        return {
+            0: 0,
+            1: 40,
+            2: 100,
+            3: 300,
+            4: 1200
+        }
+
     def wait(self):
+        cleared_rows = 0
         if self.active_tetromino is None:
             #print('spawning new tetromino')
             self._spawn_new_tetromino()
@@ -72,11 +86,14 @@ class TetrisEnvironment:
                 #print('no space')
                 self.grid = self._filled_grid() # dump the active tetro into the grid
                 self.active_tetromino = None
-                self._clear_rows()
+                cleared_rows = self._clear_rows()
                 self._spawn_new_tetromino()
+                self.score += (1 + self.score_for_rows()[cleared_rows])
             else:
                 #print('we have space -> moving')
                 self.at_row = self.at_row + 1
+
+        return cleared_rows
 
     def _clear_rows(self):
         num_cleared_rows = 0
