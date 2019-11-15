@@ -6,9 +6,9 @@ from tetris_environment import TetrisEnvironment
 
 
 input_queue = queue.Queue()
-
-
 clear = lambda:  os.system('cls' if os.name=='nt' else 'clear')
+
+FPS = 30
 
 def on_press(key):
         try:
@@ -24,6 +24,7 @@ def on_release(key):
 
 def main():
     tetris_environment = TetrisEnvironment()
+    timer = 0
     with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
         while True:
             if input_queue.qsize() > 0:
@@ -42,14 +43,19 @@ def main():
                     tetris_environment.rotate_right()
                 elif key == ',':
                     tetris_environment.rotate_left()
-            
 
-            # render game
-            input_queue.queue.clear()
-            time.sleep(0.5)
-            tetris_environment.wait()
-            clear()
-            print(tetris_environment)
+                clear()
+                print(tetris_environment)
+
+            if timer % FPS == 0:
+                print("helo")
+                tetris_environment.wait()
+                clear()
+                print(tetris_environment)
+
+            timer += 1
+            time.sleep(1/FPS)
+
 
         listener.join()
 
