@@ -95,10 +95,10 @@ class TetrisEnvironment:
         print('move down')
 
     def move_right():
-        print('move right')
+        self.at_cols = max(self.at_cols+1, self.cols-self.active_tetromino.size)
 
     def move_left():
-        print('move left')
+        self.at_cols = min(self.at_cols-1, 0)
 
     def rotate_right():
         print('rotate right')
