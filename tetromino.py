@@ -38,12 +38,25 @@ class Tetromino:
     def __init__(self):
         self.type = random.choice(list(tetromino_grids.keys()))
         self.grid = tetromino_grids[self.type]
+        self.rotate(random.randint(0,4))
 
-    def rotate(self, counter_clockwise = True):
-        """ rotates a tetromino by 90 degrees """
+    def rotate(self, steps):
         if self.type != 'o':
-            self.tetromino = np.rot90(self.grid, 3 if counter_clockwise else 1)
+            self.grid = np.rot90(self.grid, steps)
 
     @property
     def size(self):
         return np.size(self.grid, 0)
+
+    def __str__(self):
+        lines = []
+        for row in self.grid:
+            elements = []
+            for col in row:
+                if col != 0:
+                    elements.append(format(col))
+                else:
+                    elements.append(' ')
+            lines.append(' '.join(elements))
+        return '\n'.join(lines);
+
