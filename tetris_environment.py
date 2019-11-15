@@ -154,3 +154,21 @@ class TetrisEnvironment:
         self.active_tetromino.rotate(s)
         if self._tetromino_overlaps(self.active_tetromino, self.at_row, self.at_col):
             self.active_tetromino.rotate(-s)
+
+    @property
+    def state(self):
+        fg = self.grid.copy()
+        if self.active_tetromino is not None:
+            fg[self.at_row:self.at_row+self.active_tetromino.size,
+               self.at_col:self.at_col+self.active_tetromino.size] -= self.active_tetromino.grid
+        fg = np.clip(fg[:self.rows,self.padding:self.padding+self.cols], -1, 1)
+        top_of_pile = 0
+        while top_of_pile < self.rows \
+        and not np.any(fg[top_of_pile,:] == 1):
+            top_of_pile += 1
+        active_tetromino_type = 0
+        if self.active_tetromino is not None:
+            active_tetromino_type = np.amax(self.active_tetromino.grid)
+        return np.concatenate(([active_tetromino_type],
+                               fg[top_of_pile:,:].flatten(),
+                               fg[:top_of_pile,:].flatten()))
