@@ -5,7 +5,7 @@ import os
 
 from pynput import keyboard
 
-# from tetris_environment import TetrisEnvironment
+from tetris_environment import TetrisEnvironment
 
 
 input_queue = queue.Queue()
@@ -24,6 +24,8 @@ def on_release(key):
 
 def main():
 
+    tetris_environment = TetrisEnvironment()
+
     with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
         listener.join()
 
@@ -32,23 +34,21 @@ def main():
     while True:
         if input_queue.qsize() > 0:
             key = input_queue.get()
-            print("Game Loop")
-            print(key)
             if key == 'q':
                 print('Exit GAME')
                 is_running = False
                 break
             elif key == 'a':
-                print('move left')
+                tetris_environment.move_left()
             elif key == 'd':
-                print('move right')
+                tetris_environment.move_right()
             elif key == 's':
-                print('move down')
+                tetris_environment.move_down()
             else:
-                print('wait')
+                tetris_environment.wait()
 
-        time.sleep(0.1)
-        print('print game')
+        time.sleep(0.5)
+        print(tetris_environment)
 
 
 

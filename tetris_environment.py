@@ -97,6 +97,16 @@ class TetrisEnvironment:
         return num_cleared_rows
 
 
+    def move_down():
+        print('move down')
+
+    def move_right():
+        print('move right')
+
+    def move_left():
+        print('move left')
+
+
 if __name__ == "__main__":
     env = TetrisEnvironment()
     env.grid[0,:] = 1
