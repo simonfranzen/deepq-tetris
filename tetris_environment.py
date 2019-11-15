@@ -46,6 +46,7 @@ class TetrisEnvironment:
             lines.append(' '.join(elements))
         lines.append(bar)
         lines.append('SCORE: {0}'.format(self.score))
+        lines.append('NEXT:\n{0}'.format(self.next_tetromino))
         return '\n'.join(lines)
 
     def _spawn_new_tetromino(self):
