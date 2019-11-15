@@ -180,9 +180,8 @@ class TetrisEnvironment:
         while top_of_pile < self.rows \
         and not np.any(fg[top_of_pile,:] == 1):
             top_of_pile += 1
-        active_tetromino_type = 0
-        if self.active_tetromino is not None:
-            active_tetromino_type = np.amax(self.active_tetromino.grid)
-        return np.concatenate(([active_tetromino_type],
+        ntg = self.next_tetromino.grid.copy()
+        ntg.resize((4,4))
+        return np.concatenate((ntg.flatten(),
                                fg[top_of_pile:,:].flatten(),
                                fg[:top_of_pile,:].flatten()))
