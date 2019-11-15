@@ -25,7 +25,7 @@ tetromino_grids = {
 
 'l_rev': np.array([[0,6,0],
                    [0,6,0],
-                   [6,6,6]], np.int8),
+                   [6,6,0]], np.int8),
 
     't': np.array([[0,0,0],
                    [7,7,7],
