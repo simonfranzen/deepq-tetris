@@ -20,6 +20,10 @@ def on_release(key):
     if key == keyboard.Key.esc:
         return False
 
+def draw_board(tetris_environment):
+    clear()
+    print(tetris_environment)
+
 
 def main():
     player = AudioPlayer()
@@ -30,7 +34,6 @@ def main():
         while not tetris_environment.gameover:
             if input_queue.qsize() > 0:
                 key = input_queue.get()
-                print(key)
                 if key == 'q':
                     print('Exit the GAME')
                     break
@@ -45,13 +48,11 @@ def main():
                 elif key == ',':
                     tetris_environment.rotate_left()
 
-                clear()
-                print(tetris_environment)
+                draw_board(tetris_environment)
 
             if timer % FPS == 0:
                 tetris_environment.wait()
-                clear()
-                print(tetris_environment)
+                draw_board(tetris_environment)
 
             timer += 1
             time.sleep(1/FPS)

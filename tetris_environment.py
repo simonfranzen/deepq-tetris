@@ -49,19 +49,33 @@ class TetrisEnvironment:
         bar = (2*self.cols-1)*'='
         header = ' deep-Q TETRIS '.center(2*self.cols-1,'=')
         lines = [bar,header,bar]
-        current_row = 0
         for r in range(self.rows):
             elements = []
             for c in range(self.cols):
                 v = printed_grid[r,c]
                 elements.append(color('{}'.format(v),blockcolors[v]))
-            if(current_row == 3):
-                elements.append('     SCORE: {0}'.format(self.score))
             lines.append(' '.join(elements))
-            current_row = current_row +1
         lines.append(bar)
-        lines = lines + self.draw_next()
+        self.add_game_info(lines)
         return '\n'.join(lines)
+
+    def add_game_info(self, lines):
+        padding = 5*' '
+        start_at = 4
+        tetromino_rows = format(self.next_tetromino).split('\n')
+        # take first index in case top row is empty
+        tetromino_color = format(self.next_tetromino).replace(' ', '').replace('\n', '')[0]
+        # add score
+        lines[start_at] = lines[start_at] + padding + 'SCORE: {0}'.format(self.score)
+
+        # a look in the future
+        line_idx = start_at+2;
+        lines[line_idx] = lines[line_idx] + padding + 'NEXT TETROMINO'
+        line_idx = line_idx+2
+        padding = padding+ 2*' '
+        for row in tetromino_rows:
+            line_idx = line_idx +1;
+            lines[line_idx] = lines[line_idx]+padding+color('{}'.format(row),blockcolors[int(tetromino_color)])
 
 
     def draw_next(self):
