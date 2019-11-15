@@ -7,9 +7,10 @@ class Tetromino:
         # initialize possible shapes
         self.i = np.array([[0,1,0,0], [0,1,0,0], [0,1,0,0], [0,1,0,0]], int)
         self.o = np.array([[1,1],[1,1]], int)
-        self.z = np.array([[1,1,0],[0,1,0],[0,1,1]], int)
+        self.z = np.array([[0,0,0],[1,1,0],[0,1,1]], int)
         self.l = np.array([[0,1,0],[0,1,0],[0,1,1]], int)
-        self.tetrominos = np.array([self.i, self.o, self.z, self.l])
+        self.w = np.array([[0,0,0],[1,1,1],[0,1,0]], int)
+        self.tetrominos = np.array([self.i, self.o, self.z, self.l, self.w])
         # select random tetromino
         self.tetromino = self.tetrominos[(random.randint(0, len(self.tetrominos)-1))]
 
