@@ -2,7 +2,6 @@ import threading
 import queue
 import time
 import os
-from getch import _Getch
 
 from pynput import keyboard
 
@@ -13,21 +12,13 @@ input_queue = queue.Queue()
 
 def on_press(key):
         try:
-            print(key)
             input_queue.put(key)
-            print(input_queue.qsize())
         except:
             print('Error wit key {0}.'.format(key))
 
 def on_release(key):
     if key == keyboard.Key.esc:
         return False
-
-
-# def read_kbd_input(input_queue):
-#     while True:
-#         getch = _Getch()
-#         input_queue.put(getch.impl.getch())
 
 
 
