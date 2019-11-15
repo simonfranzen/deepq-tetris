@@ -26,6 +26,7 @@ class Tetromino:
     def as_array(self):
         return self.tetromino
 
+    @property
     def size(self):
         return len(self.tetromino)
 

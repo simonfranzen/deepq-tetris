@@ -1,4 +1,7 @@
+import random
 import numpy as np
+import time
+
 from tetromino import *
 
 colorcodes = {
@@ -18,7 +21,8 @@ blockcolors = {
     3:'yellow',
     4:'blue',
     5:'purple',
-    6:'cyan'}
+    6:'cyan',
+    7:'white'}
 
 def color(s, c):
     return '\033[1;{};40m{}\033[0m'.format(colorcodes[c.lower()],s)
@@ -29,7 +33,7 @@ class TetrisEnvironment:
     def __init__(self, rows=20, cols=10):
 
         # state of the grid
-        self._gameover = False
+        self.gameover = False
         self.rows = rows
         self.cols = cols
         self.grid = np.zeros([rows,cols], np.int8)
@@ -40,17 +44,13 @@ class TetrisEnvironment:
         self.at_col = None
 
         # already determine which tetromimo we want next
-        self.next_tetromino = Tetromino().get()
-
-    @property
-    def gameover(self):
-        return _gameover
+        self.next_tetromino = Tetromino()
 
     def _filled_grid(self):
         fg = self.grid.copy()
         if self.active_tetromino is not None:
-            fg[self.at_row:self.at_row+np.size(self.active_tetromino,0),
-               self.at_col:self.at_col+np.size(self.active_tetromino,1)] = self.active_tetromino
+            fg[self.at_row:self.at_row+self.active_tetromino.size,
+               self.at_col:self.at_col+self.active_tetromino.size] += self.active_tetromino.as_array()
         return fg
 
     def __str__(self):
@@ -70,19 +70,36 @@ class TetrisEnvironment:
     def _spawn_new_tetromino(self):
         assert self.active_tetromino is None
         self.active_tetromino = self.next_tetromino
-        self.next_tetromino = Tetromino().get()
+        self.next_tetromino = Tetromino()
         self.at_row = 0
-        self.at_col = round(self.cols/2) - np.size(self.active_tetromino,1)
-        #self._gameover = self._tetromino_overlaps(self.active_tetromino,
-        #                                          self.at_row, self.at_col)
+        self.at_col = random.randint(0,self.cols-self.active_tetromino.size)
+        self.gameover = self._tetromino_overlaps(self.active_tetromino,
+                                                 self.at_row, self.at_col)
+
+    def _tetromino_overlaps(self, t, r, c):
+        print('r', r)
+        print('c', c)
+        print('t', t.as_array())
+        return not np.all(t.as_array() * self.grid[r:r+t.size,
+                                                   c:c+t.size] == 0)
 
     def wait(self):
         if self.active_tetromino is None:
             print('spawning new tetromino')
             self._spawn_new_tetromino()
         else:
-            #move, check overlap, clear rows, etc ...
-            pass
+            # check if we can still move the active tetromino down
+            if self.at_row == self.rows - self.active_tetromino.size \
+            or self._tetromino_overlaps(self.active_tetromino, self.at_row+1, self.at_col):
+                # ... nope! this is the end ...
+                print('no space')
+                self.grid = self._filled_grid() # dump the active tetro into the grid
+                self.active_tetromino = None
+                self._clear_rows()
+                self._spawn_new_tetromino()
+            else:
+                print('we have space -> moving')
+                self.at_row = self.at_row + 1
 
     def _clear_rows(self):
         num_cleared_rows = 0
@@ -99,18 +116,8 @@ class TetrisEnvironment:
 
 if __name__ == "__main__":
     env = TetrisEnvironment()
-    env.grid[0,:] = 1
-    env.grid[0,5] = 0
-    env.grid[14,:] = 1
-    env.grid[15,:] = 2
-    env.grid[15,7] = 0
-    env.grid[16,:] = 3
-    env.grid[17,:] = 4
-    env.grid[17,1:5] = 0
-    env.grid[18,:] = 5
-    env.grid[19,:] = 6
-    print(env)
-    print('num cleared rows =', env._clear_rows())
-    print(env)
-    env.wait()
-    print(env)
+    while not env.gameover:
+        print(env)
+        time.sleep(0.1)
+        env.wait()
+    print('Game over!')
