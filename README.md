@@ -52,3 +52,6 @@ The AI was allowed to make moves without getting any negative rewards. If a tetr
 ### Third generation
 Same like second generation, but we only gave negative rewards if the height of the largest tower increased. The number of negative rewards was based on the height it increased.
 
+
+### Fourth generation
+Reward of each action is 1 for each shape that is dropped summed up with the score for the cleared rows and the score of the game. Expectation is that the score of the game keeps rising when the AI plays longer games and therefore (hopefully) tries to stay in the game as long as possible. Negative reward is still having a tower height greater than 16.
