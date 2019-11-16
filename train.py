@@ -17,16 +17,17 @@ num_moves_played = 0
 
 learning_rate = 0.001
 
-epsilon = 1.0
+epsilon = 0.9
 eps_decay = 0.99999
 
 gamma = 0.999
 
 replaybuffer = ReplayBuffer(1000000, 300)
 if os.path.isfile('recording.pickle'):
+    print('Loading experiences from a recording ...')
     rec = Recording('recording.pickle')
     replaybuffer.add_recording(rec)
-    print('Loaded {} experiences from a recording ...'.format(len(replaybuffer)))
+    print('{} experiences loaded!'.format(len(replaybuffer)))
     time.sleep(2)
 
 # Setup neural networks

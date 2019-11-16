@@ -103,7 +103,6 @@ class TetrisEnvironment:
         """ checks if the tetromino overlaps with another tetromino or the borders of the game board"""
         return not np.all(t.grid * self.grid[r:r+t.size,
                                              c:c+t.size] == 0)
-    
 
     def wait(self):
         reward = 0
@@ -117,11 +116,11 @@ class TetrisEnvironment:
                 self.grid = self._filled_grid() # dump the active tetro into the grid
                 self.active_tetromino = None
                 cleared_rows = self._clear_rows()
+                reward = 1 + score_for_rows[cleared_rows]
+                if self._height() >= 16:
+                    reward -= 40
                 self._spawn_new_tetromino()
                 self.score += 1 + score_for_rows[cleared_rows]
-                reward = 1 + (cleared_rows ** 2) * self.cols
-                if self._height() >= 16:
-                    reward = -40
             else:
                 self.at_row = self.at_row + 1
 
@@ -188,12 +187,6 @@ class TetrisEnvironment:
             fg[self.at_row:self.at_row+self.active_tetromino.size,
                self.at_col:self.at_col+self.active_tetromino.size] -= self.active_tetromino.grid
         fg = np.clip(fg[:self.rows,self.padding:self.padding+self.cols], -1, 1)
-        top_of_pile = 0
-        while top_of_pile < self.rows \
-        and not np.any(fg[top_of_pile,:] == 1):
-            top_of_pile += 1
         ntg = self.next_tetromino.grid.copy()
         ntg.resize((4,4))
-        return np.concatenate((np.clip(ntg.flatten(), 0, 1),
-                               fg[top_of_pile:,:].flatten(),
-                               fg[:top_of_pile,:].flatten())).astype(np.float32)
+        return np.concatenate((np.clip(ntg.flatten(), 0, 1), fg.flatten())).astype(np.float32)
