@@ -96,7 +96,7 @@ class TetrisEnvironment:
         self.active_tetromino = self.next_tetromino
         self.next_tetromino = Tetromino()
         self.at_row = 0
-        self.at_col = random.randint(self.padding, self.padding+self.cols-1-self.next_tetromino.size)
+        self.at_col = random.randint(self.padding, self.padding+self.cols-2-self.next_tetromino.size)
         self.gameover = self._tetromino_overlaps(self.active_tetromino,
                                                  self.at_row, self.at_col)
         if self.gameover:
