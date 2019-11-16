@@ -15,7 +15,7 @@ score_for_rows = {
 }
 
 class TetrisEnvironment:
-""" a class responsible for the game's logic and printing the visuals to console """
+    """ a class responsible for the game's logic and printing the visuals to console """
 
     actions = ['move_left', 'move_right', 'wait', 'drop', 'rotate_right', 'rotate_left']
 
