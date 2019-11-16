@@ -128,7 +128,7 @@ class TetrisEnvironment:
 
     def calculate_reward(self):
         self.last_bumpiness = 0
-        reward = 1 + score_for_rows[self.cleared_rows]
+        reward = score_for_rows[self.cleared_rows]
         if self._bumpiness()[0] > self.last_bumpiness:
             reward -= self._bumpiness()[0]
         else:

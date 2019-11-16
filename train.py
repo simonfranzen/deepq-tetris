@@ -23,12 +23,12 @@ eps_decay = 0.99999
 gamma = 0.999
 
 replaybuffer = ReplayBuffer(1000000, 300)
-if os.path.isfile('recording.pickle'):
-    print('Loading experiences from a recording ...')
-    rec = Recording('recording.pickle')
-    replaybuffer.add_recording(rec)
-    print('{} experiences loaded!'.format(len(replaybuffer)))
-    time.sleep(2)
+#if os.path.isfile('recording.pickle'):
+#    print('Loading experiences from a recording ...')
+#    rec = Recording('recording.pickle')
+#    replaybuffer.add_recording(rec)
+#    print('{} experiences loaded!'.format(len(replaybuffer)))
+#    time.sleep(2)
 
 # Setup neural networks
 policy_net = DQNN(221,len(TetrisEnvironment.actions))
@@ -39,7 +39,7 @@ optimizer = torch.optim.Adam(params=policy_net.parameters(), lr=learning_rate)
 
 
 plotter = Plotter(datetime.now().strftime("%Y-%m-%d-%H:%M:%S"))
-plotter.write('episode score moves_played mean_score move_left move_right drop wait rotate_right rotate_left')
+plotter.write('episode score moves_played mean_score mean_rewards move_left move_right drop wait rotate_right rotate_left')
 
 while True:
 
@@ -99,7 +99,8 @@ while True:
         num_moves_played += 1
         if num_moves_played % 1000 == 0:
             target_net.load_state_dict(policy_net.state_dict())
-
+            # clear rewards to reset mean_rewards value
+            rewards.clear()
 
         moves_played_this_episode += 1
 
@@ -131,11 +132,12 @@ while True:
     max_score = max(max_score, tetris_environment.score)
     print('GAME OVER')
     print('YOUR SCORE: {0}'.format(tetris_environment.score))
-    print('rewards for this game: ')
-    print(*rewards, sep = ', ')
-    rewards.clear()
+    mean_rewards_len = len(rewards)
+    if mean_rewards_len == 0:
+        mean_rewards_len = 1
+    mean_rewards = (sum(rewards) / mean_rewards_len)
 
-    plotter.write('{0} {1} {2} {3} {4}'.format(num_episodes_played, tetris_environment.score, moves_played_this_episode, mean_score, " ".join([str(actions_made[k]) for k in sorted(actions_made.keys())] ) ))
+    plotter.write('{0} {1} {2} {3} {4} {5}'.format(num_episodes_played, tetris_environment.score, moves_played_this_episode, mean_score, mean_rewards, " ".join([str(actions_made[k]) for k in sorted(actions_made.keys())] ) ))
 
 
     time.sleep(0.5)
