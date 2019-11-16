@@ -112,11 +112,10 @@ class TetrisEnvironment:
             # check if we can still move the active tetromino down
             if self._tetromino_overlaps(self.active_tetromino, self.at_row+1, self.at_col):
                 # ... nope! this is the end ...
-                old_height = self._height()
                 self.grid = self._filled_grid() # dump the active tetro into the grid
                 self.active_tetromino = None
                 cleared_rows = self._clear_rows()
-                reward = 1 + score_for_rows[cleared_rows]
+                reward = 1 + score_for_rows[cleared_rows] + self.score
                 if self._height() >= 16:
                     reward -= 40
                 self._spawn_new_tetromino()
@@ -147,30 +146,36 @@ class TetrisEnvironment:
         return self.wait()
 
     def move_right(self):
-        self._move(+1)
-        return 0
+        return self._move(+1)
 
     def move_left(self):
-        self._move(-1)
-        return 0
+        return self._move(-1)
 
     def _move(self,m):
         at_newcol = self.at_col + m
         if not self._tetromino_overlaps(self.active_tetromino, self.at_row, at_newcol):
             self.at_col = at_newcol
+            return 0
+        # punish for trying to move outside the space
+        return -1
 
     def rotate_right(self):
-        self._rotate(-1)
-        return 0
+        return self._rotate(-1)
 
     def rotate_left(self):
-        self._rotate(+1)
-        return 0
+        return self._rotate(+1)
 
     def _rotate(self, s):
+        if self.active_tetromino.type == 'o':
+            # hard punish for rotating 'o'
+            return -2
         self.active_tetromino.rotate(s)
         if self._tetromino_overlaps(self.active_tetromino, self.at_row, self.at_col):
             self.active_tetromino.rotate(-s)
+            #punish for invalid movement
+            return -1
+        else:
+            return 0
 
     def _height(self):
         for h in range(self.rows-1,-1,-1):
