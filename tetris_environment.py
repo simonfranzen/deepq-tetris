@@ -80,18 +80,6 @@ class TetrisEnvironment:
             lines[line_idx] = lines[line_idx]+padding+color('{}'.format(row),blockcolors[int(tetromino_color)])
 
 
-    def draw_next(self):
-        tetromino_rows = format(self.next_tetromino).split('\n')
-        lines = []
-        lines.append('N E X T:')
-        lines.append('')
-        lines.append('-----------')
-        for r in tetromino_rows:
-            lines.append('|'+r+' |')
-        lines.append('-----------')
-        return lines
-
-
     def _spawn_new_tetromino(self):
         assert self.active_tetromino is None
         self.active_tetromino = self.next_tetromino
