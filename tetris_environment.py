@@ -38,6 +38,7 @@ class TetrisEnvironment:
 
         # scores and levels
         self.score = 0
+        self.cleared_rows = 0
 
         # already determine which tetromimo we want next
         self.next_tetromino = Tetromino()
@@ -115,12 +116,12 @@ class TetrisEnvironment:
                 old_height = self._height()
                 self.grid = self._filled_grid() # dump the active tetro into the grid
                 self.active_tetromino = None
-                cleared_rows = self._clear_rows()
-                reward = 1 + score_for_rows[cleared_rows]
+                self.cleared_rows = self._clear_rows()
+                reward = score_for_rows[self.cleared_rows]
                 if self._height() >= 16:
                     reward -= 40
                 self._spawn_new_tetromino()
-                self.score += 1 + score_for_rows[cleared_rows]
+                self.score += 1 + score_for_rows[self.cleared_rows]
             else:
                 self.at_row = self.at_row + 1
 
@@ -178,6 +179,35 @@ class TetrisEnvironment:
                 return self.rows - h - 1
         return self.rows
 
+    def _holes(self):
+        number_of_holes = 0
+        for r in range(1, self.rows): # starting from second line
+            for c in range(0, self.cols):
+                crnt = self.grid[r, c+self.padding]
+                above = self.grid[r-1, c+self.padding]
+                if crnt == 0 and above != 0:
+                    number_of_holes += 1
+        return number_of_holes
+
+
+    def _bumpiness(self):
+        '''Sum of the differences of heights between pair of columns'''
+        total_bumpiness = 0
+        max_bumpiness = 0
+        min_ys = []
+
+        for c in range(0, self.cols-1): # not the last col
+            for r in range(1, self.rows):
+                if self.grid[r, c+self.padding] != 0:
+                    min_ys.append(self.rows - r - 1)
+        
+        for i in range(len(min_ys) - 1):
+            bumpiness = abs(min_ys[i] - min_ys[i+1])
+            max_bumpiness = max(bumpiness, max_bumpiness)
+            total_bumpiness += abs(min_ys[i] - min_ys[i+1])
+
+        return total_bumpiness, max_bumpiness
+
     @property
     def state(self):
         if self.gameover:
@@ -189,4 +219,17 @@ class TetrisEnvironment:
         fg = np.clip(fg[:self.rows,self.padding:self.padding+self.cols], -1, 1)
         ntg = self.next_tetromino.grid.copy()
         ntg.resize((4,4))
-        return np.concatenate((np.clip(ntg.flatten(), 0, 1), fg.flatten())).astype(np.float32)
+        total_bumpiness, max_bumpiness = self._bumpiness()
+        return np.concatenate((np.clip(ntg.flatten(), 0, 1), 
+                                fg.flatten(), 
+                                [float(self._height()),
+                                float(self._holes()),
+                                float(self.cleared_rows),
+                                float(self.score),
+                                float(total_bumpiness),
+                                float(max_bumpiness)],
+                                )).astype(np.float32)
+
+
+# env = TetrisEnvironment()
+# print(env._holes())

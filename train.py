@@ -17,22 +17,22 @@ num_moves_played = 0
 
 learning_rate = 0.001
 
-epsilon = 0.9
+epsilon = 1.0
 eps_decay = 0.99999
 
 gamma = 0.999
 
 replaybuffer = ReplayBuffer(1000000, 300)
-if os.path.isfile('recording.pickle'):
-    print('Loading experiences from a recording ...')
-    rec = Recording('recording.pickle')
-    replaybuffer.add_recording(rec)
-    print('{} experiences loaded!'.format(len(replaybuffer)))
-    time.sleep(2)
+# if os.path.isfile('recording.pickle'):
+#     print('Loading experiences from a recording ...')
+#     rec = Recording('recording.pickle')
+#     replaybuffer.add_recording(rec)
+#     print('{} experiences loaded!'.format(len(replaybuffer)))
+#     time.sleep(2)
 
 # Setup neural networks
-policy_net = DQNN(216,len(TetrisEnvironment.actions))
-target_net = DQNN(216,len(TetrisEnvironment.actions))
+policy_net = DQNN(222,len(TetrisEnvironment.actions))
+target_net = DQNN(222,len(TetrisEnvironment.actions))
 target_net.load_state_dict(policy_net.state_dict())
 target_net.eval()
 optimizer = torch.optim.Adam(params=policy_net.parameters(), lr=learning_rate)
@@ -106,6 +106,12 @@ while True:
         print('num episodes played = {}'.format(num_episodes_played))
         print('max score = {}'.format(max_score))
         print('mean score = {}'.format(mean_score))
+        print('height = {}'.format(tetris_environment._height()))
+        print('holes = {}'.format(tetris_environment._holes()))
+        print('cleared rows = {}'.format(tetris_environment.cleared_rows))
+        total_bumpiness, max_bumpiness = tetris_environment._bumpiness()
+        print('total bumpiness = {}'.format(total_bumpiness))
+        print('max_bumpiness = {}'.format(max_bumpiness))
         #time.sleep(0.05)
 
 
