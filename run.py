@@ -1,29 +1,11 @@
-import queue
 import time
-import os
 from pynput import keyboard
 from tetris_environment import TetrisEnvironment
 from audio_player import AudioPlayer
 from highscore import Highscore
+from utils import *
 
-input_queue = queue.Queue()
-clear = lambda:  os.system('cls' if os.name=='nt' else 'clear')
 FPS = 15
-
-def on_press(key):
-        try:
-            input_queue.put(key.char if hasattr(key, 'char') else key)
-        except:
-            print('Error wit key {0}.'.format(key))
-
-def on_release(key):
-    if key == keyboard.Key.esc:
-        return False
-
-def draw_board(tetris_environment):
-    clear()
-    print(tetris_environment)
-
 
 def main():
     player = AudioPlayer()

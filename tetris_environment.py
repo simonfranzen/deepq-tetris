@@ -37,6 +37,8 @@ class TetrisEnvironment:
         # already determine which tetromimo we want next
         self.next_tetromino = Tetromino()
 
+        self.wait()
+
     def _filled_grid(self):
         fg = self.grid.copy()
         if self.active_tetromino is not None:
@@ -113,12 +115,15 @@ class TetrisEnvironment:
             # check if we can still move the active tetromino down
             if self._tetromino_overlaps(self.active_tetromino, self.at_row+1, self.at_col):
                 # ... nope! this is the end ...
+                old_height = self._height()
                 self.grid = self._filled_grid() # dump the active tetro into the grid
                 self.active_tetromino = None
                 cleared_rows = self._clear_rows()
-                reward = (1 + score_for_rows[cleared_rows])
+                reward = 1 + score_for_rows[cleared_rows] - (self._height() - old_height)
+                if self._height() >= 16:
+                    reward -= 40
                 self._spawn_new_tetromino()
-                self.score += reward
+                self.score += 1 + score_for_rows[cleared_rows]
             else:
                 self.at_row = self.at_row + 1
         return reward
@@ -169,10 +174,16 @@ class TetrisEnvironment:
         if self._tetromino_overlaps(self.active_tetromino, self.at_row, self.at_col):
             self.active_tetromino.rotate(-s)
 
+    def _height(self):
+        for h in range(self.rows-1,-1,-1):
+            if np.all(self.grid[h,self.padding:self.padding+self.cols] == 0):
+                return self.rows - h - 1
+        return self.rows
+
     @property
     def state(self):
         if self.gameover:
-            return np.ones((self.rows*self.cols+4*4), np.int8)
+            return np.ones((self.rows*self.cols+4*4), np.float32)
         fg = self.grid.copy()
         if self.active_tetromino is not None:
             fg[self.at_row:self.at_row+self.active_tetromino.size,
@@ -186,4 +197,4 @@ class TetrisEnvironment:
         ntg.resize((4,4))
         return np.concatenate((np.clip(ntg.flatten(), 0, 1),
                                fg[top_of_pile:,:].flatten(),
-                               fg[:top_of_pile,:].flatten()))
+                               fg[:top_of_pile,:].flatten())).astype(np.float32)
