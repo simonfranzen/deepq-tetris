@@ -1,5 +1,6 @@
 data/highscore
 data/train
+*.pickle*
 
 
 # Byte-compiled / optimized / DLL files
@@ -106,3 +107,5 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+game_results*

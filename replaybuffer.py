@@ -1,12 +1,10 @@
 import random
 import torch
+import copy
+from collections import namedtuple
+from tetris_environment import *
 
-class Experience:
-    def __init__(self, state, action, reward, next_state):
-        self.state = state
-        self.action = action
-        self.reward = reward
-        self.next_state = next_state
+Experience = namedtuple('Experience', ['state','action','reward','next_state'])
 
 class ReplayBuffer:
 
@@ -40,3 +38,14 @@ class ReplayBuffer:
             next_states[i,:] = exp.next_state
 
         return Experience(states, actions, rewards, next_states)
+
+    def add_recording(self, rec):
+        for frame in rec.frames:
+            state  = torch.from_numpy(frame.env.state)
+            action = TetrisEnvironment.actions.index(frame.action) # <-- as an index
+            reward = getattr(copy.deepcopy(frame.env), frame.action)()
+            new_state = torch.from_numpy(frame.next_env.state)
+            self.add(Experience(state, action, reward, new_state))
+
+    def __len__(self):
+        return len(self.experiences)

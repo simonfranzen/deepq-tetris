@@ -1,7 +1,9 @@
-from pygame import mixer  # Load the popular external library
+from pygame import mixer
 
+""" a module handling the audio output of the application"""
 
 class AudioPlayer:
+    """a class that plays music"""
 
     def __init__(self):
         mixer.init()

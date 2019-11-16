@@ -1,3 +1,4 @@
+import os
 import time
 import random
 from tetris_environment import *
@@ -6,8 +7,11 @@ from utils import *
 from dqnn import *
 from plotter import Plotter
 from datetime import datetime
+from recording import *
 
 max_score = 0
+acc_score = 0
+mean_score = 0
 num_episodes_played = 0
 num_moves_played = 0
 
@@ -18,20 +22,23 @@ eps_decay = 0.99999
 
 gamma = 0.999
 
-actions = ['move_left', 'move_right', 'wait', 'drop', 'rotate_right', 'rotate_left']
-
 replaybuffer = ReplayBuffer(1000000, 300)
+if os.path.isfile('recording.pickle'):
+    rec = Recording('recording.pickle')
+    replaybuffer.add_recording(rec)
+    print('Loaded {} experiences from a recording ...'.format(len(replaybuffer)))
+    time.sleep(2)
 
 # Setup neural networks
-policy_net = DQNN(216,len(actions))
-target_net = DQNN(216,len(actions))
+policy_net = DQNN(216,len(TetrisEnvironment.actions))
+target_net = DQNN(216,len(TetrisEnvironment.actions))
 target_net.load_state_dict(policy_net.state_dict())
 target_net.eval()
 optimizer = torch.optim.Adam(params=policy_net.parameters(), lr=learning_rate)
 
 
 plotter = Plotter(datetime.now().strftime("%Y-%m-%d-%H:%M:%S"))
-plotter.write('episode score moves_played move_left move_right drop wait rotate_right rotate_left')
+plotter.write('episode score moves_played mean_score move_left move_right drop wait rotate_right rotate_left')
 
 while True:
 
@@ -55,15 +62,15 @@ while True:
         epsilon *= eps_decay
         if random.random() < epsilon:
             motivation = 'exploration'
-            actionidx = random.randint(0,len(actions)-1)
+            actionidx = random.randint(0,len(TetrisEnvironment.actions)-1)
         else:
             motivation = 'exploitation'
             with torch.no_grad():
                 actionidx = policy_net(state).argmax()
 
-        actions_made[actions[actionidx]] += 1
+        actions_made[TetrisEnvironment.actions[actionidx]] += 1
 
-        reward    = getattr(tetris_environment, actions[actionidx])()
+        reward    = getattr(tetris_environment, TetrisEnvironment.actions[actionidx])()
         next_state = torch.from_numpy(tetris_environment.state)
 
         if tetris_environment.gameover: continue
@@ -81,7 +88,7 @@ while True:
             optimizer.step()
 
         num_moves_played += 1
-        if num_moves_played % 100 == 0:
+        if num_moves_played % 1000 == 0:
             target_net.load_state_dict(policy_net.state_dict())
 
 
@@ -91,23 +98,26 @@ while True:
         print('')
         print('==== LEARNING STUFF ====')
         print('motivation = {}'.format(motivation))
-        print('last action = {}'.format(actions[actionidx]))
+        print('last action = {}'.format(TetrisEnvironment.actions[actionidx]))
         print('last reward = {}'.format(reward))
         print('epsilon = {}'.format(epsilon))
         print('num moves played = {}'.format(num_moves_played))
         print('num episodes played = {}'.format(num_episodes_played))
         print('max score = {}'.format(max_score))
+        print('mean score = {}'.format(mean_score))
         #time.sleep(0.05)
 
-    
 
     draw_board(tetris_environment)
 
     num_episodes_played += 1
+    acc_score += tetris_environment.score
+    mean_score = acc_score / num_episodes_played
     max_score = max(max_score, tetris_environment.score)
     print('GAME OVER')
     print('YOUR SCORE: {0}'.format(tetris_environment.score))
 
-    plotter.write('{0} {1} {2} {3}'.format(num_episodes_played, tetris_environment.score, moves_played_this_episode, " ".join([str(actions_made[k]) for k in sorted(actions_made.keys())] ) ))
+    plotter.write('{0} {1} {2} {3} {4}'.format(num_episodes_played, tetris_environment.score, moves_played_this_episode, mean_score, " ".join([str(actions_made[k]) for k in sorted(actions_made.keys())] ) ))
+
 
     time.sleep(0.2)

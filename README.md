@@ -63,5 +63,6 @@ Giving a reward the following way:
 AND: When height of the highest tower is larger than 16, then return -10 as reward
 
 
+### Fifth generation
 
-
+Reward of each action is 1 for each shape that is dropped summed up with the score for the cleared rows and the score of the game. Expectation is that the score of the game keeps rising when the AI plays longer games and therefore (hopefully) tries to stay in the game as long as possible. Negative reward is still having a tower height greater than 16.
