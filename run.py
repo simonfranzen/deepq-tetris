@@ -62,6 +62,7 @@ def main():
         highscore = Highscore()
         highscore.write(tetris_environment.score)
         print(highscore)
+        exit(0)
 
 
 if __name__ == '__main__':
