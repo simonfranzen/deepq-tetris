@@ -120,11 +120,10 @@ class TetrisEnvironment:
                 self._spawn_new_tetromino()
                 self.score += 1 + score_for_rows[cleared_rows]
                 reward = 1 + (cleared_rows ** 2) * self.cols
+                if self._height() >= 16:
+                    reward = -40
             else:
                 self.at_row = self.at_row + 1
-
-        if self._height() >= 16:
-            reward = -40
 
         return reward
 
