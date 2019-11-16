@@ -19,6 +19,8 @@ class TetrisEnvironment:
 
     actions = ['move_left', 'move_right', 'wait', 'drop', 'rotate_right', 'rotate_left']
 
+    action_counter = {}
+
     def __init__(self, rows=20, cols=10):
 
         # state of the grid
@@ -94,7 +96,7 @@ class TetrisEnvironment:
         self.active_tetromino = self.next_tetromino
         self.next_tetromino = Tetromino()
         self.at_row = 0
-        self.at_col = int(self.cols/2) + self.padding - 1
+        self.at_col = random.randint(self.padding, self.padding+self.cols-1-self.next_tetromino.size)
         self.gameover = self._tetromino_overlaps(self.active_tetromino,
                                                  self.at_row, self.at_col)
         if self.gameover:
@@ -116,15 +118,27 @@ class TetrisEnvironment:
                 self.grid = self._filled_grid() # dump the active tetro into the grid
                 self.active_tetromino = None
                 self.cleared_rows = self._clear_rows()
-                reward = score_for_rows[self.cleared_rows]
-                if self._height() >= 12:
-                    reward -= self._height()
+                reward = self.calculate_reward()
                 self._spawn_new_tetromino()
                 self.score += 1 + score_for_rows[self.cleared_rows]
             else:
                 self.at_row = self.at_row + 1
 
         return reward
+
+    def calculate_reward(self):
+        self.last_bumpiness = 0
+        reward = 1 + score_for_rows[self.cleared_rows]
+        if self._bumpiness()[0] > self.last_bumpiness:
+            reward -= self._bumpiness()[0]
+        else:
+            reward += self._bumpiness()[0]
+        reward -= self._height()
+        reward -= self._holes()
+        self.last_bumpiness = self._bumpiness()[0]
+
+        return reward
+
 
     def _clear_rows(self):
         num_cleared_rows = 0
@@ -156,7 +170,9 @@ class TetrisEnvironment:
         at_newcol = self.at_col + m
         if not self._tetromino_overlaps(self.active_tetromino, self.at_row, at_newcol):
             self.at_col = at_newcol
-        return -1
+            return -1
+
+        return -2
 
     def rotate_right(self):
         return self._rotate(-1)
@@ -167,11 +183,13 @@ class TetrisEnvironment:
     def _rotate(self, s):
         if self.active_tetromino.type == 'o':
             # hard punish for rotating 'o'
-            return -2
+            return -3
         self.active_tetromino.rotate(s)
         if self._tetromino_overlaps(self.active_tetromino, self.at_row, self.at_col):
             self.active_tetromino.rotate(-s)
-        return -1
+            return -1
+
+        return -2
 
     def _height(self):
         for h in range(self.rows-1,-1,-1):
@@ -200,7 +218,7 @@ class TetrisEnvironment:
             for r in range(1, self.rows):
                 if self.grid[r, c+self.padding] != 0:
                     min_ys.append(self.rows - r - 1)
-        
+
         for i in range(len(min_ys) - 1):
             bumpiness = abs(min_ys[i] - min_ys[i+1])
             max_bumpiness = max(bumpiness, max_bumpiness)
@@ -229,5 +247,4 @@ class TetrisEnvironment:
                     float(total_bumpiness),
                     float(max_bumpiness)],
                     )).astype(np.float32)
-
 

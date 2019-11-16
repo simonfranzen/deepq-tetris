@@ -23,12 +23,12 @@ eps_decay = 0.99999
 gamma = 0.999
 
 replaybuffer = ReplayBuffer(1000000, 300)
-# if os.path.isfile('recording.pickle'):
-#     print('Loading experiences from a recording ...')
-#     rec = Recording('recording.pickle')
-#     replaybuffer.add_recording(rec)
-#     print('{} experiences loaded!'.format(len(replaybuffer)))
-#     time.sleep(2)
+if os.path.isfile('recording.pickle'):
+    print('Loading experiences from a recording ...')
+    rec = Recording('recording.pickle')
+    replaybuffer.add_recording(rec)
+    print('{} experiences loaded!'.format(len(replaybuffer)))
+    time.sleep(2)
 
 # Setup neural networks
 policy_net = DQNN(221,len(TetrisEnvironment.actions))
@@ -56,12 +56,18 @@ while True:
         'rotate_left': 0,
     }
 
+    rewards = []
+
     while not tetris_environment.gameover:
 
         state = torch.from_numpy(tetris_environment.state)
 
         epsilon *= eps_decay
-        if random.random() < epsilon:
+        if num_moves_played % 30 == 0:
+            #wait!
+            motivation = 'forced wait'
+            actionidx = 3
+        elif random.random() < epsilon:
             motivation = 'exploration'
             actionidx = random.randint(0,len(TetrisEnvironment.actions)-1)
         else:
@@ -72,6 +78,8 @@ while True:
         actions_made[TetrisEnvironment.actions[actionidx]] += 1
 
         reward    = getattr(tetris_environment, TetrisEnvironment.actions[actionidx])()
+        # keep rewards
+        rewards.append(reward)
         next_state = torch.from_numpy(tetris_environment.state)
 
         if tetris_environment.gameover: continue
@@ -123,8 +131,11 @@ while True:
     max_score = max(max_score, tetris_environment.score)
     print('GAME OVER')
     print('YOUR SCORE: {0}'.format(tetris_environment.score))
+    print('rewards for this game: ')
+    print(*rewards, sep = ', ')
+    rewards.clear()
 
     plotter.write('{0} {1} {2} {3} {4}'.format(num_episodes_played, tetris_environment.score, moves_played_this_episode, mean_score, " ".join([str(actions_made[k]) for k in sorted(actions_made.keys())] ) ))
 
 
-    time.sleep(0.2)
+    time.sleep(0.5)
