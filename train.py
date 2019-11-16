@@ -10,6 +10,8 @@ from datetime import datetime
 from recording import *
 
 max_score = 0
+acc_score = 0
+mean_score = 0
 num_episodes_played = 0
 num_moves_played = 0
 
@@ -101,6 +103,7 @@ while True:
         print('num moves played = {}'.format(num_moves_played))
         print('num episodes played = {}'.format(num_episodes_played))
         print('max score = {}'.format(max_score))
+        print('mean score = {}'.format(mean_score))
         print('tower high punishment = {}'.format(tetris_environment._height()))
         #time.sleep(0.05)
 
@@ -109,10 +112,13 @@ while True:
     draw_board(tetris_environment)
 
     num_episodes_played += 1
+    acc_score += tetris_environment.score
+    mean_score = acc_score / num_episodes_played
     max_score = max(max_score, tetris_environment.score)
     print('GAME OVER')
     print('YOUR SCORE: {0}'.format(tetris_environment.score))
 
-    plotter.write('{0} {1} {2} {3}'.format(num_episodes_played, tetris_environment.score, moves_played_this_episode, " ".join([str(actions_made[k]) for k in sorted(actions_made.keys())] ) ))
+    plotter.write('{0} {1} {2} {3} {4}'.format(num_episodes_played, tetris_environment.score, moves_played_this_episode, mean_score, " ".join([str(actions_made[k]) for k in sorted(actions_made.keys())] ) ))
+
 
     time.sleep(0.2)
