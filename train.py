@@ -1,3 +1,4 @@
+import os
 import time
 import random
 from tetris_environment import *
@@ -6,6 +7,7 @@ from utils import *
 from dqnn import *
 from plotter import Plotter
 from datetime import datetime
+from recording import *
 
 max_score = 0
 num_episodes_played = 0
@@ -18,13 +20,16 @@ eps_decay = 0.99999
 
 gamma = 0.999
 
-actions = ['move_left', 'move_right', 'wait', 'drop', 'rotate_right', 'rotate_left']
-
 replaybuffer = ReplayBuffer(1000000, 300)
+if os.path.isfile('recording.pickle'):
+    rec = Recording('recording.pickle')
+    replaybuffer.add_recording(rec)
+    print('Loaded {} experiences from a recording ...'.format(len(replaybuffer)))
+    time.sleep(2)
 
 # Setup neural networks
-policy_net = DQNN(216,len(actions))
-target_net = DQNN(216,len(actions))
+policy_net = DQNN(216,len(TetrisEnvironment.actions))
+target_net = DQNN(216,len(TetrisEnvironment.actions))
 target_net.load_state_dict(policy_net.state_dict())
 target_net.eval()
 optimizer = torch.optim.Adam(params=policy_net.parameters(), lr=learning_rate)
@@ -54,7 +59,7 @@ while True:
         epsilon *= eps_decay
         if random.random() < epsilon:
             motivation = 'exploration'
-            actionidx = random.randint(0,len(actions)-1)
+            actionidx = random.randint(0,len(TetrisEnvironment.actions)-1)
         else:
             motivation = 'exploitation'
             with torch.no_grad():
@@ -62,7 +67,7 @@ while True:
 
         actions_made[actions[actionidx]] += 1
 
-        reward    = getattr(tetris_environment, actions[actionidx])()
+        reward    = getattr(tetris_environment, TetrisEnvironment.actions[actionidx])()
         next_state = torch.from_numpy(tetris_environment.state)
 
         if tetris_environment.gameover: continue
@@ -80,7 +85,7 @@ while True:
             optimizer.step()
 
         num_moves_played += 1
-        if num_moves_played % 100 == 0:
+        if num_moves_played % 1000 == 0:
             target_net.load_state_dict(policy_net.state_dict())
 
 
@@ -90,7 +95,7 @@ while True:
         print('')
         print('==== LEARNING STUFF ====')
         print('motivation = {}'.format(motivation))
-        print('last action = {}'.format(actions[actionidx]))
+        print('last action = {}'.format(TetrisEnvironment.actions[actionidx]))
         print('last reward = {}'.format(reward))
         print('epsilon = {}'.format(epsilon))
         print('num moves played = {}'.format(num_moves_played))
@@ -99,7 +104,7 @@ while True:
         print('tower high punishment = {}'.format(tetris_environment._height()))
         #time.sleep(0.05)
 
-    
+
 
     draw_board(tetris_environment)
 

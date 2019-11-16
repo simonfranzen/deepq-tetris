@@ -1,5 +1,6 @@
 data/highscore
 data/train
+*.pickle*
 
 
 # Byte-compiled / optimized / DLL files
