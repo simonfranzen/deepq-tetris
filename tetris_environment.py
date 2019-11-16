@@ -26,6 +26,8 @@ class TetrisEnvironment:
         self.grid[:,cols+self.padding:] = -1
         self.grid[rows:,:] = -1
 
+        self.record_game = False
+
         # type and position of the active tetromino
         self.active_tetromino = None
         self.at_row = None
@@ -78,18 +80,6 @@ class TetrisEnvironment:
         for row in tetromino_rows:
             line_idx = line_idx +1;
             lines[line_idx] = lines[line_idx]+padding+color('{}'.format(row),blockcolors[int(tetromino_color)])
-
-
-    def draw_next(self):
-        tetromino_rows = format(self.next_tetromino).split('\n')
-        lines = []
-        lines.append('N E X T:')
-        lines.append('')
-        lines.append('-----------')
-        for r in tetromino_rows:
-            lines.append('|'+r+' |')
-        lines.append('-----------')
-        return lines
 
 
     def _spawn_new_tetromino(self):
