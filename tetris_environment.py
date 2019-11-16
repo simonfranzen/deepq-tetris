@@ -26,8 +26,6 @@ class TetrisEnvironment:
         self.grid[:,cols+self.padding:] = -1
         self.grid[rows:,:] = -1
 
-        self.record_game = False
-
         # type and position of the active tetromino
         self.active_tetromino = None
         self.at_row = None
