@@ -1,51 +1,47 @@
 import random
-import torch
 import copy
 from collections import namedtuple
 from tetris_environment import *
 
-Experience = namedtuple('Experience', ['state','action','reward','next_state'])
+Experience = namedtuple('Experience', ['state','action','reward','finished','next_state'])
 
 class ReplayBuffer:
 
-    def __init__(self, max_size, sample_size):
+    def __init__(self, max_size):
         self.max_size = max_size
         self.experiences = []
-        self.sample_size = sample_size
 
     def add(self, experience):
         self.experiences.append(experience)
         if len(self.experiences) > self.max_size:
             del self.experiences[0]
 
-    def sample(self):
+    def sample(self, sample_size):
 
-        if len(self.experiences) < self.sample_size:
-            return None
+        state_size = np.size(self.experiences[0].state,0)
+        batch = random.sample(self.experiences, sample_size)
 
-        state_size = list(self.experiences[0].state.size())[0]
-        batch = random.sample(self.experiences, self.sample_size)
+        actions = np.array([exp.action for exp in batch])
+        rewards = np.array([exp.reward for exp in batch], dtype=np.float32)
+        finished = np.array(np.array([exp.finished for exp in batch]))
 
-        states      = torch.zeros((self.sample_size,state_size,), dtype=torch.float)
-        actions     = torch.zeros((self.sample_size), dtype=torch.long)
-        rewards     = torch.zeros((self.sample_size), dtype=torch.float)
-        next_states = torch.zeros((self.sample_size, state_size), dtype=torch.float)
-
+        # collect states and next_states of the batch in
+        states      = np.zeros((sample_size, state_size), dtype=np.float32)
+        next_states = np.zeros((sample_size, state_size), dtype=np.float32)
         for i, exp in enumerate(batch):
             states[i,:] = exp.state
-            actions[i] = exp.action
-            rewards[i] = exp.reward
             next_states[i,:] = exp.next_state
 
-        return Experience(states, actions, rewards, next_states)
+        return states, actions, rewards, finished, next_states
 
     def add_recording(self, rec):
         for frame in rec.frames:
-            state  = torch.from_numpy(frame.env.state)
+            state  = frame.env.state
             action = TetrisEnvironment.actions.index(frame.action) # <-- as an index
             reward = getattr(copy.deepcopy(frame.env), frame.action)()
-            new_state = torch.from_numpy(frame.next_env.state)
-            self.add(Experience(state, action, reward, new_state))
+            finished = frame.next_env.gameover
+            new_state = frame.next_env.state
+            self.add(Experience(state, action, reward, finished, new_state))
 
     def __len__(self):
         return len(self.experiences)
