@@ -4,6 +4,8 @@ import time
 from tetromino import *
 from colors import *
 
+"""The module that handles the game state and interactions with it"""
+
 score_for_rows = {
     0: 0,
     1: 40,
@@ -13,7 +15,7 @@ score_for_rows = {
 }
 
 class TetrisEnvironment:
-
+""" a class responsible for the game's logic and printing the visuals to console """
     def __init__(self, rows=20, cols=10):
 
         # state of the grid
@@ -62,7 +64,9 @@ class TetrisEnvironment:
         return '\n'.join(lines)
 
     def add_game_info(self, lines):
+        """ prints out score and next tetromino information right of the board"""
         padding = 5*' '
+        # row to start at (from the top)
         start_at = 4
         tetromino_rows = format(self.next_tetromino).split('\n')
         # take first index in case top row is empty
@@ -72,7 +76,7 @@ class TetrisEnvironment:
 
         # a look in the future
         line_idx = start_at+2;
-        lines[line_idx] = lines[line_idx] + padding + 'NEXT TETROMINO'
+        lines[line_idx] = lines[line_idx] + padding + 'NEXT TETROMINO:'
         line_idx = line_idx+2
         padding = padding+ 2*' '
         for row in tetromino_rows:
@@ -81,6 +85,7 @@ class TetrisEnvironment:
 
 
     def _spawn_new_tetromino(self):
+        """ creates a new random tetromino, except if gameover is true"""
         assert self.active_tetromino is None
         self.active_tetromino = self.next_tetromino
         self.next_tetromino = Tetromino()
@@ -92,6 +97,7 @@ class TetrisEnvironment:
             self.active_tetromino = None
 
     def _tetromino_overlaps(self, t, r, c):
+        """ checks if the tetromino overlaps with another tetromino or the borders of the game board"""
         return not np.all(t.grid * self.grid[r:r+t.size,
                                              c:c+t.size] == 0)
 
