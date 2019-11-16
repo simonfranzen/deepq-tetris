@@ -115,7 +115,7 @@ class TetrisEnvironment:
                 self.grid = self._filled_grid() # dump the active tetro into the grid
                 self.active_tetromino = None
                 cleared_rows = self._clear_rows()
-                reward = 1 + score_for_rows[cleared_rows] + self.score
+                reward = score_for_rows[cleared_rows]
                 if self._height() >= 16:
                     reward -= 40
                 self._spawn_new_tetromino()

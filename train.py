@@ -22,13 +22,13 @@ eps_decay = 0.99999
 
 gamma = 0.999
 
-replaybuffer = ReplayBuffer(1000000, 300)
-if os.path.isfile('recording.pickle'):
-    print('Loading experiences from a recording ...')
-    rec = Recording('recording.pickle')
-    replaybuffer.add_recording(rec)
-    print('{} experiences loaded!'.format(len(replaybuffer)))
-    time.sleep(2)
+replaybuffer = ReplayBuffer(100000, 300)
+#if os.path.isfile('recording.pickle'):
+#    print('Loading experiences from a recording ...')
+#    rec = Recording('recording.pickle')
+#    replaybuffer.add_recording(rec)
+#    print('{} experiences loaded!'.format(len(replaybuffer)))
+#    time.sleep(2)
 
 # Setup neural networks
 policy_net = DQNN(216,len(TetrisEnvironment.actions))

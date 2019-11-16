@@ -36,7 +36,8 @@ tetromino_grids = {
 class Tetromino:
 
     def __init__(self):
-        self.type = random.choice(list(tetromino_grids.keys()))
+        self.type = 'o'
+        #self.type = random.choice(list(tetromino_grids.keys()))
         self.grid = tetromino_grids[self.type]
         self.rotate(random.randint(0,4))
 
