@@ -106,7 +106,7 @@ class TetrisEnvironment:
                                              c:c+t.size] == 0)
 
     def wait(self):
-        reward = 0
+        reward = -1
         if self.active_tetromino is None:
             self._spawn_new_tetromino()
         else:
@@ -117,8 +117,8 @@ class TetrisEnvironment:
                 self.active_tetromino = None
                 self.cleared_rows = self._clear_rows()
                 reward = score_for_rows[self.cleared_rows]
-                if self._height() >= 16:
-                    reward -= 40
+                if self._height() >= 12:
+                    reward -= self._height()
                 self._spawn_new_tetromino()
                 self.score += 1 + score_for_rows[self.cleared_rows]
             else:
@@ -156,8 +156,6 @@ class TetrisEnvironment:
         at_newcol = self.at_col + m
         if not self._tetromino_overlaps(self.active_tetromino, self.at_row, at_newcol):
             self.at_col = at_newcol
-            return 0
-        # punish for trying to move outside the space
         return -1
 
     def rotate_right(self):
@@ -173,10 +171,7 @@ class TetrisEnvironment:
         self.active_tetromino.rotate(s)
         if self._tetromino_overlaps(self.active_tetromino, self.at_row, self.at_col):
             self.active_tetromino.rotate(-s)
-            #punish for invalid movement
-            return -1
-        else:
-            return 0
+        return -1
 
     def _height(self):
         for h in range(self.rows-1,-1,-1):
@@ -225,16 +220,14 @@ class TetrisEnvironment:
         ntg = self.next_tetromino.grid.copy()
         ntg.resize((4,4))
         total_bumpiness, max_bumpiness = self._bumpiness()
-        return np.concatenate((np.clip(ntg.flatten(), 0, 1), 
-                                fg.flatten(), 
-                                [float(self._height()),
-                                float(self._holes()),
-                                float(self.cleared_rows),
-                                float(self.score),
-                                float(total_bumpiness),
-                                float(max_bumpiness)],
-                                )).astype(np.float32)
+        return np.concatenate(
+                    (np.clip(ntg.flatten(), 0, 1), 
+                    fg.flatten(), 
+                    [float(self._height()),
+                    float(self._holes()),
+                    float(self.cleared_rows),
+                    float(total_bumpiness),
+                    float(max_bumpiness)],
+                    )).astype(np.float32)
 
 
-# env = TetrisEnvironment()
-# print(env._holes())

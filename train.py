@@ -31,8 +31,8 @@ replaybuffer = ReplayBuffer(1000000, 300)
 #     time.sleep(2)
 
 # Setup neural networks
-policy_net = DQNN(222,len(TetrisEnvironment.actions))
-target_net = DQNN(222,len(TetrisEnvironment.actions))
+policy_net = DQNN(221,len(TetrisEnvironment.actions))
+target_net = DQNN(221,len(TetrisEnvironment.actions))
 target_net.load_state_dict(policy_net.state_dict())
 target_net.eval()
 optimizer = torch.optim.Adam(params=policy_net.parameters(), lr=learning_rate)
