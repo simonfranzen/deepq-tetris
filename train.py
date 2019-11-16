@@ -38,6 +38,7 @@ optimizer = torch.optim.Adam(params=policy_net.parameters(), lr=learning_rate)
 
 
 plotter = Plotter(datetime.now().strftime("%Y-%m-%d-%H:%M:%S"))
+plotter.write('episode score moves_played mean_score move_left move_right drop wait rotate_right rotate_left')
 
 while True:
 
@@ -67,7 +68,7 @@ while True:
             with torch.no_grad():
                 actionidx = policy_net(state).argmax()
 
-        actions_made[actions[actionidx]] += 1
+        actions_made[TetrisEnvironment.actions[actionidx]] += 1
 
         reward    = getattr(tetris_environment, TetrisEnvironment.actions[actionidx])()
         next_state = torch.from_numpy(tetris_environment.state)
@@ -104,9 +105,7 @@ while True:
         print('num episodes played = {}'.format(num_episodes_played))
         print('max score = {}'.format(max_score))
         print('mean score = {}'.format(mean_score))
-        print('tower high punishment = {}'.format(tetris_environment._height()))
         #time.sleep(0.05)
-
 
 
     draw_board(tetris_environment)
