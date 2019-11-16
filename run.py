@@ -6,7 +6,7 @@ from highscore import Highscore
 from utils import *
 from recording import *
 
-FPS = 15
+FPS = 60
 
 def main():
     player = AudioPlayer()

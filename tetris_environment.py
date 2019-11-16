@@ -19,6 +19,8 @@ class TetrisEnvironment:
 
     actions = ['move_left', 'move_right', 'wait', 'drop', 'rotate_right', 'rotate_left']
 
+    action_counter = {}
+
     def __init__(self, rows=20, cols=10):
 
         # state of the grid
@@ -116,15 +118,26 @@ class TetrisEnvironment:
                 self.grid = self._filled_grid() # dump the active tetro into the grid
                 self.active_tetromino = None
                 self.cleared_rows = self._clear_rows()
-                reward = score_for_rows[self.cleared_rows]
-                if self._height() >= 16:
-                    reward -= 40
+                reward = self.calculate_reward()
                 self._spawn_new_tetromino()
                 self.score += 1 + score_for_rows[self.cleared_rows]
             else:
                 self.at_row = self.at_row + 1
 
         return reward
+
+    def calculate_reward(self):
+        self.last_bumpiness = 0
+        reward = 1 + score_for_rows[self.cleared_rows]
+        if self._bumpiness()[0] > self.last_bumpiness:
+            reward -= self._bumpiness()[0]
+        else:
+            reward += self._bumpiness()[0]
+        reward -= self._height()
+        self.last_bumpiness = self._bumpiness()[0]
+
+        return reward
+
 
     def _clear_rows(self):
         num_cleared_rows = 0
@@ -205,7 +218,7 @@ class TetrisEnvironment:
             for r in range(1, self.rows):
                 if self.grid[r, c+self.padding] != 0:
                     min_ys.append(self.rows - r - 1)
-        
+
         for i in range(len(min_ys) - 1):
             bumpiness = abs(min_ys[i] - min_ys[i+1])
             max_bumpiness = max(bumpiness, max_bumpiness)
@@ -225,8 +238,8 @@ class TetrisEnvironment:
         ntg = self.next_tetromino.grid.copy()
         ntg.resize((4,4))
         total_bumpiness, max_bumpiness = self._bumpiness()
-        return np.concatenate((np.clip(ntg.flatten(), 0, 1), 
-                                fg.flatten(), 
+        return np.concatenate((np.clip(ntg.flatten(), 0, 1),
+                                fg.flatten(),
                                 [float(self._height()),
                                 float(self._holes()),
                                 float(self.cleared_rows),
