@@ -4,6 +4,8 @@ from tetris_environment import *
 from replaybuffer import *
 from utils import *
 from dqnn import *
+from plotter import Plotter
+from datetime import datetime
 
 max_score = 0
 num_episodes_played = 0
@@ -27,10 +29,23 @@ target_net.load_state_dict(policy_net.state_dict())
 target_net.eval()
 optimizer = torch.optim.Adam(params=policy_net.parameters(), lr=learning_rate)
 
+
+plotter = Plotter(datetime.now().strftime("%Y-%m-%d-%H:%M:%S"))
+
 while True:
 
     tetris_environment = TetrisEnvironment(20,10)
     draw_board(tetris_environment)
+
+    moves_played_this_episode = 0
+    actions_made = {
+        'move_left': 0,
+        'move_right': 0,
+        'drop': 0,
+        'wait': 0,
+        'rotate_right': 0,
+        'rotate_left': 0,
+    }
 
     while not tetris_environment.gameover:
 
@@ -44,6 +59,8 @@ while True:
             motivation = 'exploitation'
             with torch.no_grad():
                 actionidx = policy_net(state).argmax()
+
+        actions_made[actions[actionidx]] += 1
 
         reward    = getattr(tetris_environment, actions[actionidx])()
         next_state = torch.from_numpy(tetris_environment.state)
@@ -66,6 +83,9 @@ while True:
         if num_moves_played % 100 == 0:
             target_net.load_state_dict(policy_net.state_dict())
 
+
+        moves_played_this_episode += 1
+
         draw_board(tetris_environment)
         print('')
         print('==== LEARNING STUFF ====')
@@ -79,10 +99,15 @@ while True:
         print('tower high punishment = {}'.format(tetris_environment._height()))
         #time.sleep(0.05)
 
+    
+
     draw_board(tetris_environment)
 
     num_episodes_played += 1
     max_score = max(max_score, tetris_environment.score)
     print('GAME OVER')
     print('YOUR SCORE: {0}'.format(tetris_environment.score))
-    time.sleep(0.5)
+
+    plotter.write('{0} {1} {2} {3}'.format(num_episodes_played, tetris_environment.score, moves_played_this_episode, " ".join([str(actions_made[k]) for k in sorted(actions_made.keys())] ) ))
+
+    time.sleep(0.2)
