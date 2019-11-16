@@ -52,3 +52,16 @@ The AI was allowed to make moves without getting any negative rewards. If a tetr
 ### Third generation
 Same like second generation, but we only gave negative rewards if the height of the largest tower increased. The number of negative rewards was based on the height it increased.
 
+
+### Fourth generation
+Giving a reward the following way:
+
+```
+	reward = 1 + (cleared_rows^2) * number_of_cols
+```
+
+AND: When height of the highest tower is larger than 16, then return -10 as reward
+
+
+
+

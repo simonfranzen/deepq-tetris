@@ -94,6 +94,7 @@ class TetrisEnvironment:
     def _tetromino_overlaps(self, t, r, c):
         return not np.all(t.grid * self.grid[r:r+t.size,
                                              c:c+t.size] == 0)
+    
 
     def wait(self):
         reward = 0
@@ -107,13 +108,15 @@ class TetrisEnvironment:
                 self.grid = self._filled_grid() # dump the active tetro into the grid
                 self.active_tetromino = None
                 cleared_rows = self._clear_rows()
-                reward = 1 + score_for_rows[cleared_rows] - (self._height() - old_height)
-                if self._height() >= 16:
-                    reward -= 40
                 self._spawn_new_tetromino()
                 self.score += 1 + score_for_rows[cleared_rows]
+                reward = 1 + (cleared_rows ** 2) * self.cols
             else:
                 self.at_row = self.at_row + 1
+
+        if self._height() >= 16:
+            reward = -40
+
         return reward
 
     def _clear_rows(self):
