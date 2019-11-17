@@ -133,12 +133,12 @@ class TetrisEnvironment:
         if self.gameover: return -10 # important to return a reward when going game over
         # standard reward from game
         reward = 1 + score_for_rows[cleared_rows]
-        new_fitness_reward = self._calc_fitness_reward()
+        new_fitness_reward = self._calc_fitness_reward(cleared_rows)
         reward = reward + (new_fitness_reward - self.last_fitness_reward)
         self.last_fitness_reward = new_fitness_reward
         return reward
 
-    def _calc_fitness_reward(self):
+    def _calc_fitness_reward(self, cleared_rows):
         # heuristic function to determine if this turn was good or bad
         # https://codemyroad.wordpress.com/2013/04/14/tetris-ai-the-near-perfect-player/
         # a * (Aggregate Height) + b * (Complete Lines) + c * (Holes) + d * (Bumpiness)
@@ -146,7 +146,7 @@ class TetrisEnvironment:
         beta    = 0.76
         gamma   = -0.36
         delta   = -0.18
-        return alpha * self.aggregate_height + beta * self.cleared_rows + gamma * self.holes + delta * self.bumpiness
+        return alpha * self.aggregate_height + beta * cleared_rows + gamma * self.holes + delta * self.bumpiness
 
     def _clear_rows(self):
         num_cleared_rows = 0
