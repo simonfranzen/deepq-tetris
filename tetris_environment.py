@@ -112,8 +112,7 @@ class TetrisEnvironment:
                                              c:c+t.size] == 0)
 
     def wait(self):
-        # TODO is retuning ZERO for moving ok? what to return
-        reward = 0
+        reward = -0.1 # TODO the average discount reward for taking this actions. Where to take from?
         if self.active_tetromino is None:
             self._spawn_new_tetromino()
         else:
@@ -180,7 +179,7 @@ class TetrisEnvironment:
         at_newcol = self.at_col + m
         if not self._tetromino_overlaps(self.active_tetromino, self.at_row, at_newcol):
             self.at_col = at_newcol
-        return 0
+        return -0.1 # TODO the average discount reward for taking this actions. Where to take from?
 
     def rotate_right(self):
         return self._rotate(-1)
@@ -192,7 +191,7 @@ class TetrisEnvironment:
         self.active_tetromino.rotate(s)
         if self._tetromino_overlaps(self.active_tetromino, self.at_row, self.at_col):
             self.active_tetromino.rotate(-s)
-        return 0
+        return -0.1 # TODO the average discount reward for taking this actions. Where to take from?
 
 
     def _height_for_col(self, col):
