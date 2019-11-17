@@ -6,6 +6,7 @@ import numpy as np
 class DQNAgent:
 
     def __init__(self, state_size, num_actions,
+                       model_filename = None,
                        gamma = 0.999,
                        epsilon_base=0.02, epsilon_add=0.98, epsilon_decay=0.99999,
                        training_epochs=3, training_batch_size=300, target_model_lifetime=1000):
@@ -22,16 +23,23 @@ class DQNAgent:
         self.training_epochs = training_epochs
         self.training_batch_size = training_batch_size
 
-        # set up the (identical) structure of the neural networks
-        self.policy_model = self._create_model()
+        # set up the structure of the neural networks
+        if model_filename is not None:
+            keras.models.load_model(model_filename)
+        else:
+            self.policy_model = self._create_model()
+            self.policy_model.compile(loss='mse', optimizer='adam') # <-- this is the model we train
+
         self.target_model = self._create_model()
         # target model starts out as a copy of policy model
         self._reset_target_model()
         self.target_model_lifetime = target_model_lifetime
         self.training_counter = 0
+        # no need to compile the target model, since we only use it for prediction and not for training
 
-        self.policy_model.compile(loss='mse', optimizer='adam') # <-- this is the model we train
-        # (no need to compile the target model, since we only use it for prediction and not for training)
+
+    def store_model(self, filename):
+        self.policy_model.save(filename)
 
 
     def _reset_target_model(self):
@@ -56,7 +64,7 @@ class DQNAgent:
             return random.randint(0,self.num_actions-1)
         else:
             # feed the state through the policy model to get the predicted q(s,a)
-            q = self.policy_model.predict(state)
+            q = self.policy_model.predict(state.reshape(1,state.size))
             # best action = a for which q(s,a) is largest
             return np.argmax(q)
 
@@ -75,28 +83,32 @@ class DQNAgent:
         assert    finished.shape == (self.training_batch_size,)
         assert next_states.shape == (self.training_batch_size, self.state_size)
 
-        # estimate q(s,a) using the policy model
-        q = self.policy_model.predict(states) # size: training_batch_size x num_actions
-        assert q.shape == (self.training_batch_size, self.num_actions)
-
         # estimate q(s',a) using the target model (s' is the state resulting from s if action a is performed)
         q_next = self.target_model.predict(next_states)
-        assert q.shape == (self.training_batch_size, self.num_actions)
+        assert q_next.shape == (self.training_batch_size, self.num_actions)
 
         # compute max_a' q(s',a') (that is the q value of the best action in the next state)
         q_next_max = np.amax(q_next, axis=1)
         assert q_next_max.shape == (self.training_batch_size,)
-        # if s' is the final state, the above is garbage since there is no action a' to be performed in s'
-        # we should set all max_a' q(s',a') to zero if s' is the final state ...
-        for i in range(self.training_batch_size):
-            if finished[i]: q_next_max[i] = 0.0
 
-        # the Bellman equation gives us the optimum values for q(s,a):
-        # q_opt(s,a) = r + gamma * max_a' q(s',a')
-        q_opt = rewards + self.gamma * q_next_max
+        # estimate q(s,a) using the policy model
+        q = self.policy_model.predict(states) # size: training_batch_size x num_actions
+        assert q.shape == (self.training_batch_size, self.num_actions)
+
+        # The target of our fit of the policy model is the q(s,a) we just
+        # calculated, except that we replace the value for the action that was
+        # actually taken with the reward observed plus the discounted future
+        # reward according to the Bellman equation.
+        q_target = q
+        for i in range(self.training_batch_size):
+            if finished[i]:
+                # for finished games there is no future reward
+                q_target[i,actions[i]] = rewards[i]
+            else:
+                q_target[i,actions[i]] = rewards[i] + self.gamma * q_next_max[i]
 
         # fit the policy model to reproduce the optimum q values
-        self.policy_model.fit(states, q_opt, batch_size=self.training_batch_size, epochs=self.training_epochs, verbose=0)
+        self.policy_model.fit(states, q_target, batch_size=self.training_batch_size, epochs=self.training_epochs, verbose=0)
 
         self.training_counter += 1
         # we become more greedy after each training

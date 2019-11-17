@@ -80,5 +80,6 @@ while True:
 
     plotter.write('{0} {1} {2} {3} {4}'.format(num_episodes_played, tetris_environment.score, moves_played_this_episode, mean_score, " ".join([str(actions_made[k]) for k in sorted(actions_made.keys())] ) ))
 
+    agent.store_model('model.hdf5')
 
     time.sleep(0.2)
