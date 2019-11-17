@@ -1,4 +1,4 @@
-from keras.models import Sequential
+from keras.models import Sequential, load_model
 from keras.layers import Dense
 import random
 import numpy as np
@@ -7,9 +7,9 @@ class DQNAgent:
 
     def __init__(self, state_size, num_actions,
                        model_filename = None,
-                       gamma = 0.999,
+                       gamma = 0.9,
                        epsilon_base=0.02, epsilon_add=0.98, epsilon_decay=0.99999,
-                       training_epochs=3, training_batch_size=300, target_model_lifetime=1000):
+                       training_epochs=1, training_batch_size=500, target_model_lifetime=1000):
 
         self.state_size = state_size
         self.num_actions = num_actions
@@ -25,7 +25,7 @@ class DQNAgent:
 
         # set up the structure of the neural networks
         if model_filename is not None:
-            keras.models.load_model(model_filename)
+            self.policy_model = load_model(model_filename)
         else:
             self.policy_model = self._create_model()
             self.policy_model.compile(loss='mse', optimizer='adam') # <-- this is the model we train
