@@ -1,5 +1,6 @@
 data/highscore
 data/train
+*.hdf5
 
 
 # Byte-compiled / optimized / DLL files
