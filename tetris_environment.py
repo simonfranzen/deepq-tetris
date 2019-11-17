@@ -43,7 +43,7 @@ class TetrisEnvironment:
         self.cleared_rows = 0
         self.last_bumpiness = 0
         self.last_holes = 0
-        self.last_fitness = 0
+        self.last_fitness_reward = 0
         self.t = t
 
         # already determine which tetromimo we want next
@@ -133,12 +133,12 @@ class TetrisEnvironment:
     def calculate_reward(self):
         # standard reward from game
         reward = 1 + score_for_rows[self.cleared_rows]
-        new_fitness = self._calc_fitness()
-        reward = reward + new_fitness - self.last_fitness
-        self.last_fitness = new_fitness
+        new_fitness_reward = self._calc_fitness_reward()
+        reward = reward + new_fitness_reward - self.last_fitness_reward
+        self.last_fitness_reward = new_fitness_reward
         return reward
 
-    def _calc_fitness(self):
+    def _calc_fitness_reward(self):
         # heuristic function to determine if this turn was good or bad
         # https://codemyroad.wordpress.com/2013/04/14/tetris-ai-the-near-perfect-player/
         # a * (Aggregate Height) + b * (Complete Lines) + c * (Holes) + d * (Bumpiness)
@@ -146,7 +146,7 @@ class TetrisEnvironment:
         beta    = 0.76
         gamma   = -0.36
         delta   = -0.18
-        return alpha * self._aggregate_height() + beta * self.cleared_rows + gamma * self._holes() + delta * self._bumpiness()[0]
+        return alpha * self.aggregate_height + beta * self.cleared_rows + gamma * self.holes + delta * self.bumpiness
 
     def _clear_rows(self):
         num_cleared_rows = 0
@@ -192,12 +192,6 @@ class TetrisEnvironment:
             self.active_tetromino.rotate(-s)
         return 0
 
-    def _height(self):
-        for h in range(self.rows-1,-1,-1):
-            if np.all(self.grid[h,self.padding:self.padding+self.cols] == 0):
-                return self.rows - h - 1
-        return self.rows
-
 
     def _height_for_col(self, col):
         for r in range(self.rows):
@@ -206,43 +200,33 @@ class TetrisEnvironment:
 
         return 0
 
-    def _aggregate_height(self):
+    @property
+    def aggregate_height(self):
         aggregate_height = 0
         for c in range(self.cols): # not the last col
             aggregate_height += self._height_for_col(c)
         return aggregate_height
 
-    def _holes(self):
-        number_of_holes = 0
+    @property
+    def holes(self):
+        num_holes = 0
         for r in range(1, self.rows): # starting from second line
             for c in range(0, self.cols):
                 crnt = self.grid[r, c+self.padding]
                 if crnt == 0:
-                    # look up to find one blocking in top
                     for above in range(r-1, -1, -1):
                         if self.grid[above, c+self.padding] != 0:
-                            number_of_holes += 1
+                            num_holes += 1
                             break
-        return number_of_holes
+        return num_holes
 
 
-    def _bumpiness(self):
-        '''Sum of the differences of heights between pair of columns'''
-        total_bumpiness = 0
-        max_bumpiness = 0
-        min_ys = []
-
-        for c in range(0, self.cols-1): # not the last col
-            for r in range(1, self.rows):
-                if self.grid[r, c+self.padding] != 0:
-                    min_ys.append(self.rows - r - 1)
-
-        for i in range(len(min_ys) - 1):
-            bumpiness = abs(min_ys[i] - min_ys[i+1])
-            max_bumpiness = max(bumpiness, max_bumpiness)
-            total_bumpiness += abs(min_ys[i] - min_ys[i+1])
-
-        return total_bumpiness, max_bumpiness
+    @property
+    def bumpiness(self):
+        bump = 0
+        for c in range(self.cols - 1): # not the last col
+            bump += abs(self._height_for_col(c) - self._height_for_col(c+1))
+        return bump
 
     @property
     def state(self):
@@ -255,20 +239,13 @@ class TetrisEnvironment:
         fg = np.clip(fg[:self.rows,self.padding:self.padding+self.cols], -1, 1)
         ntg = self.next_tetromino.grid.copy()
         ntg.resize((4,4))
-        total_bumpiness, max_bumpiness = self._bumpiness()
         return np.concatenate(
                     (np.clip(ntg.flatten(), 0, 1), 
                     fg.flatten(), 
                     )).astype(np.float32)
 
 
-# env = TetrisEnvironment()
-# env.drop()
-# env.drop()
-# env.drop()
-# env.drop()
-# env.drop()
-# env.drop()
-# env.drop()
-# print(env)
-# print(env.last_fitness)
+env = TetrisEnvironment()
+env.drop()
+print(env)
+print(env._calc_fitness_reward())
