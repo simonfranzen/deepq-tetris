@@ -40,7 +40,6 @@ class TetrisEnvironment:
 
         # scores and levels
         self.score = 0
-        self.cleared_rows = 0
         self.last_bumpiness = 0
         self.last_holes = 0
         self.last_fitness_reward = 0
@@ -121,19 +120,19 @@ class TetrisEnvironment:
                 # ... nope! this is the end ...
                 self.grid = self._filled_grid() # dump the active tetro into the grid
                 self.active_tetromino = None
-                self.cleared_rows = self._clear_rows()
+                cleared_rows = self._clear_rows()
+                reward = self.calculate_reward(cleared_rows) # TODO OK to only return an reward when dropping a shape????
                 self._spawn_new_tetromino()
-                self.score += 1 + score_for_rows[self.cleared_rows]
-                reward = self.calculate_reward() # TODO OK to only return an reward when dropping a shape????
+                self.score += 1 + score_for_rows[cleared_rows]
             else:
                 self.at_row = self.at_row + 1
 
         return reward
 
-    def calculate_reward(self):
+    def calculate_reward(self, cleared_rows): 
         if self.gameover: return -10 # important to return a reward when going game over
         # standard reward from game
-        reward = 1 + score_for_rows[self.cleared_rows]
+        reward = 1 + score_for_rows[cleared_rows]
         new_fitness_reward = self._calc_fitness_reward()
         reward = reward + (new_fitness_reward - self.last_fitness_reward)
         self.last_fitness_reward = new_fitness_reward

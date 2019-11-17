@@ -42,10 +42,6 @@ def draw_training_info(tetris_environment, reward, actionidx):
     print('max score = {}'.format(max_score))
     print('mean score = {}'.format(mean_score))
     print('mean rewards last 1000 = {}'.format(mean_rewards))
-    print('aggregate height = {}'.format(tetris_environment.aggregate_height))
-    print('holes = {}'.format(tetris_environment.holes))
-    print('cleared rows = {}'.format(tetris_environment.cleared_rows))
-    print('bumpiness = {}'.format(tetris_environment.bumpiness))
     
 
 while True:
