@@ -95,6 +95,7 @@ while True:
 
 
     draw_board(tetris_environment)
+    draw_training_info(tetris_environment, reward, actionidx)
 
 
     num_episodes_played += 1

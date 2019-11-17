@@ -112,6 +112,7 @@ class TetrisEnvironment:
                                              c:c+t.size] == 0)
 
     def wait(self):
+        # TODO is retuning ZERO for moving ok? what to return
         reward = 0
         if self.active_tetromino is None:
             self._spawn_new_tetromino()
@@ -122,19 +123,20 @@ class TetrisEnvironment:
                 self.grid = self._filled_grid() # dump the active tetro into the grid
                 self.active_tetromino = None
                 self.cleared_rows = self._clear_rows()
-                reward = self.calculate_reward()
                 self._spawn_new_tetromino()
                 self.score += 1 + score_for_rows[self.cleared_rows]
+                reward = self.calculate_reward() # TODO OK to only return an reward when dropping a shape????
             else:
                 self.at_row = self.at_row + 1
 
         return reward
 
     def calculate_reward(self):
+        if self.gameover: return -10 # important to return a reward when going game over
         # standard reward from game
         reward = 1 + score_for_rows[self.cleared_rows]
         new_fitness_reward = self._calc_fitness_reward()
-        reward = reward + new_fitness_reward - self.last_fitness_reward
+        reward = reward + (new_fitness_reward - self.last_fitness_reward)
         self.last_fitness_reward = new_fitness_reward
         return reward
 
@@ -245,7 +247,7 @@ class TetrisEnvironment:
                     )).astype(np.float32)
 
 
-env = TetrisEnvironment()
-env.drop()
-print(env)
-print(env._calc_fitness_reward())
+# env = TetrisEnvironment()
+# env.drop()
+# print(env)
+# print(env._calc_fitness_reward())
