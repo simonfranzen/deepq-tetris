@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import os
 import time
 from tetris_environment import *
@@ -5,7 +7,6 @@ from replaybuffer import *
 from utils import *
 from plotter import Plotter
 from datetime import datetime
-from recording import *
 from agent import *
 
 max_score = 0
@@ -17,14 +18,7 @@ num_moves_played = 0
 t_counter = 0
 t_max_count = 0
 
-replaybuffer = ReplayBuffer(100000)
-
-if os.path.isfile('recording.pickle'):
-    print('Loading experiences from a recording ...')
-    rec = Recording('recording.pickle')
-    replaybuffer.add_recording(rec)
-    print('{} experiences loaded!'.format(len(replaybuffer)))
-    time.sleep(2)
+replaybuffer = ReplayBuffer(1000000)
 
 agent = DQNAgent(216,len(TetrisEnvironment.actions))
 plotter = Plotter(datetime.now().strftime("%Y-%m-%d-%H:%M:%S"))
@@ -42,13 +36,13 @@ def draw_training_info(tetris_environment, reward, actionidx):
     print('max score = {}'.format(max_score))
     print('mean score = {}'.format(mean_score))
     print('mean rewards last 1000 = {}'.format(mean_rewards))
-    
+
 
 while True:
 
-    tetris_environment = etrisEnvironment(20,10,'o') if t_counter < t_max_count else TetrisEnvironment(20,10)
+    tetris_environment = TetrisEnvironment(20,10,'o') if t_counter < t_max_count else TetrisEnvironment(20,10)
     t_counter += 1
-    
+
     draw_board(tetris_environment)
 
     moves_played_this_episode = 0
@@ -64,9 +58,9 @@ while True:
     rewards = []
 
     while not tetris_environment.gameover:
-        
+
         state = tetris_environment.state
-        actionidx = 3 if num_moves_played % 30 == 0 else agent.act(state)
+        actionidx = TetrisEnvironment.actions.index('wait') if num_moves_played % 4 == 0 else agent.act(state)
         reward = getattr(tetris_environment, TetrisEnvironment.actions[actionidx])()
         finished = tetris_environment.gameover
         next_state = tetris_environment.state
@@ -82,17 +76,14 @@ while True:
         if num_moves_played % 1000 == 0:
             # clear rewards to reset mean_rewards value
             rewards.clear()
-        
+
         # draw the game
         draw_board(tetris_environment)
         draw_training_info(tetris_environment, reward, actionidx)
-        
-        # time.sleep(0.1)
 
 
     draw_board(tetris_environment)
     draw_training_info(tetris_environment, reward, actionidx)
-
 
     num_episodes_played += 1
     acc_score += tetris_environment.score

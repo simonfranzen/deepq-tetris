@@ -14,7 +14,7 @@ class ReplayBuffer:
     def add(self, experience):
         self.experiences.append(experience)
         if len(self.experiences) > self.max_size:
-            del self.experiences[0]
+            del self.experiences[random.randint(0,len(self.experiences)-1)]
 
     def sample(self, sample_size):
 
@@ -34,14 +34,6 @@ class ReplayBuffer:
 
         return states, actions, rewards, finished, next_states
 
-    def add_recording(self, rec):
-        for frame in rec.frames:
-            state  = frame.env.state
-            action = TetrisEnvironment.actions.index(frame.action) # <-- as an index
-            reward = getattr(copy.deepcopy(frame.env), frame.action)()
-            finished = frame.next_env.gameover
-            new_state = frame.next_env.state
-            self.add(Experience(state, action, reward, finished, new_state))
-
     def __len__(self):
         return len(self.experiences)
+

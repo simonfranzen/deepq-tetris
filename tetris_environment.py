@@ -129,7 +129,7 @@ class TetrisEnvironment:
 
         return reward
 
-    def calculate_reward(self, cleared_rows): 
+    def calculate_reward(self, cleared_rows):
         if self.gameover: return -10 # important to return a reward when going game over
         # standard reward from game
         reward = 1 + score_for_rows[cleared_rows]
@@ -142,7 +142,7 @@ class TetrisEnvironment:
         # heuristic function to determine if this turn was good or bad
         # https://codemyroad.wordpress.com/2013/04/14/tetris-ai-the-near-perfect-player/
         # a * (Aggregate Height) + b * (Complete Lines) + c * (Holes) + d * (Bumpiness)
-        alpha   = -0.51 
+        alpha   = -0.51
         beta    = 0.76
         gamma   = -0.36
         delta   = -0.18
@@ -197,7 +197,6 @@ class TetrisEnvironment:
         for r in range(self.rows):
             if self.grid[r, col + self.padding] != 0:
                 return self.rows - r
-
         return 0
 
     @property
@@ -220,7 +219,6 @@ class TetrisEnvironment:
                             break
         return num_holes
 
-
     @property
     def bumpiness(self):
         bump = 0
@@ -239,13 +237,7 @@ class TetrisEnvironment:
         fg = np.clip(fg[:self.rows,self.padding:self.padding+self.cols], -1, 1)
         ntg = self.next_tetromino.grid.copy()
         ntg.resize((4,4))
-        return np.concatenate(
-                    (np.clip(ntg.flatten(), 0, 1), 
-                    fg.flatten(), 
+        return np.concatenate((
+                    np.clip(ntg.flatten(), 0, 1),
+                    fg.flatten(),
                     )).astype(np.float32)
-
-
-# env = TetrisEnvironment()
-# env.drop()
-# print(env)
-# print(env._calc_fitness_reward())
