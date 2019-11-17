@@ -14,6 +14,8 @@ acc_score = 0
 mean_score = 0
 num_episodes_played = 0
 num_moves_played = 0
+t_counter = 0
+t_max_count = 3
 
 learning_rate = 0.001
 
@@ -43,7 +45,11 @@ plotter.write('episode score moves_played mean_score mean_rewards move_left move
 
 while True:
 
-    tetris_environment = TetrisEnvironment(20,10)
+    if t_counter < t_max_count:
+        tetris_environment = TetrisEnvironment(20,10, 'o')
+    else:
+        tetris_environment = TetrisEnvironment(20,10)
+    t_counter += 1
     draw_board(tetris_environment)
 
     moves_played_this_episode = 0
