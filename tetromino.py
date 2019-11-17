@@ -35,10 +35,14 @@ tetromino_grids = {
 
 class Tetromino:
 
-    def __init__(self):
-        self.type = random.choice(list(tetromino_grids.keys()))
+    def __init__(self, t= None):
+        if t == None or t not in tetromino_grids:
+            self.type = random.choice(list(tetromino_grids.keys()))
+        else:
+            self.type = t
         self.grid = tetromino_grids[self.type]
         self.rotate(random.randint(0,4))
+
 
     def rotate(self, steps):
         if self.type != 'o':

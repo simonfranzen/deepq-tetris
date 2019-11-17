@@ -20,8 +20,9 @@ class TetrisEnvironment:
     actions = ['move_left', 'move_right', 'wait', 'drop', 'rotate_right', 'rotate_left']
 
     action_counter = {}
+    t_counter = 0
 
-    def __init__(self, rows=20, cols=10):
+    def __init__(self, rows=20, cols=10, t=None, t_max_count=None):
 
         # state of the grid
         self.gameover = False
@@ -41,9 +42,17 @@ class TetrisEnvironment:
         # scores and levels
         self.score = 0
         self.cleared_rows = 0
+        self.last_bumpiness = 0
+        self.last_holes = 0
+        self.t = t
+        self.t_max_count = t_max_count
 
         # already determine which tetromimo we want next
-        self.next_tetromino = Tetromino()
+
+        if self.t_counter <= self.t_max_count:
+            self.next_tetromino = Tetromino(self.t)
+        else:
+            self.next_tetromino = Tetromino()
 
         self.wait()
 
@@ -94,7 +103,11 @@ class TetrisEnvironment:
         """ creates a new random tetromino, except if gameover is true"""
         assert self.active_tetromino is None
         self.active_tetromino = self.next_tetromino
-        self.next_tetromino = Tetromino()
+        if self.t_counter <= self.t_max_count:
+            self.next_tetromino = Tetromino(self.t)
+            self.t_counter += 1
+        else:
+            self.next_tetromino = Tetromino()
         self.at_row = 0
         self.at_col = random.randint(self.padding, self.padding+self.cols-2-self.next_tetromino.size)
         self.gameover = self._tetromino_overlaps(self.active_tetromino,
@@ -127,15 +140,19 @@ class TetrisEnvironment:
         return reward
 
     def calculate_reward(self):
-        self.last_bumpiness = 0
         reward = score_for_rows[self.cleared_rows]
-        if self._bumpiness()[0] > self.last_bumpiness:
-            reward -= self._bumpiness()[0]
+        if self._bumpiness()[0] >= self.last_bumpiness:
+            reward -= 2
         else:
-            reward += self._bumpiness()[0]
-        reward -= self._height()
-        reward -= self._holes()
+            reward += 2
         self.last_bumpiness = self._bumpiness()[0]
+        if self._holes() >= self.last_holes:
+            reward -= 2
+        else:
+            reward += 2
+        self.last_holes = self._holes()
+        if self._height() > 12:
+            reward -= 3
 
         return reward
 
