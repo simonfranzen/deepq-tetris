@@ -15,7 +15,7 @@ mean_score = 0
 num_episodes_played = 0
 num_moves_played = 0
 t_counter = 0
-t_max_count = 3
+t_max_count = 0
 
 learning_rate = 0.001
 
@@ -33,8 +33,8 @@ replaybuffer = ReplayBuffer(1000000, 300)
 #    time.sleep(2)
 
 # Setup neural networks
-policy_net = DQNN(221,len(TetrisEnvironment.actions))
-target_net = DQNN(221,len(TetrisEnvironment.actions))
+policy_net = DQNN(216,len(TetrisEnvironment.actions))
+target_net = DQNN(216,len(TetrisEnvironment.actions))
 target_net.load_state_dict(policy_net.state_dict())
 target_net.eval()
 optimizer = torch.optim.Adam(params=policy_net.parameters(), lr=learning_rate)
@@ -46,7 +46,7 @@ plotter.write('episode score moves_played mean_score mean_rewards move_left move
 while True:
 
     if t_counter < t_max_count:
-        tetris_environment = TetrisEnvironment(20,10, 'o')
+        tetris_environment = TetrisEnvironment(20,10,'o')
     else:
         tetris_environment = TetrisEnvironment(20,10)
     t_counter += 1
