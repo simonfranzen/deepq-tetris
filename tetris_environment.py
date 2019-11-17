@@ -49,7 +49,7 @@ class TetrisEnvironment:
 
         # already determine which tetromimo we want next
 
-        if self.t_counter <= self.t_max_count:
+        if self.t_max_count and self.t_counter <= self.t_max_count:
             self.next_tetromino = Tetromino(self.t)
         else:
             self.next_tetromino = Tetromino()
@@ -103,7 +103,7 @@ class TetrisEnvironment:
         """ creates a new random tetromino, except if gameover is true"""
         assert self.active_tetromino is None
         self.active_tetromino = self.next_tetromino
-        if self.t_counter <= self.t_max_count:
+        if self.t_max_count and self.t_counter <= self.t_max_count:
             self.next_tetromino = Tetromino(self.t)
             self.t_counter += 1
         else:

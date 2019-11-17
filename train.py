@@ -43,7 +43,7 @@ plotter.write('episode score moves_played mean_score mean_rewards move_left move
 
 while True:
 
-    tetris_environment = TetrisEnvironment(20,10, 'o', 5000)
+    tetris_environment = TetrisEnvironment(20,10)
     draw_board(tetris_environment)
 
     moves_played_this_episode = 0
