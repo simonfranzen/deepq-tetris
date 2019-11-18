@@ -229,7 +229,7 @@ class TetrisEnvironment:
     @property
     def state(self):
         if self.gameover:
-            return np.ones((self.rows*self.cols+4*4), np.float32)
+            return np.ones((self.rows*self.cols+4*4), np.int8)
         fg = self.grid.copy()
         if self.active_tetromino is not None:
             fg[self.at_row:self.at_row+self.active_tetromino.size,
@@ -240,4 +240,4 @@ class TetrisEnvironment:
         return np.concatenate((
                     np.clip(ntg.flatten(), 0, 1),
                     fg.flatten(),
-                    )).astype(np.float32)
+                    )).astype(np.int8)

@@ -2,6 +2,7 @@
 
 import os
 import time
+import pickle
 from tetris_environment import *
 from replaybuffer import *
 from utils import *
@@ -98,8 +99,10 @@ while True:
 
     plotter.write('{0} {1} {2} {3} {4} {5}'.format(num_episodes_played, tetris_environment.score, moves_played_this_episode, mean_score, mean_rewards, " ".join([str(actions_made[k]) for k in sorted(actions_made.keys())] ) ))
 
-    agent.store_model('model.hdf5')
+    if (num_episodes_played % 100 == 0):
+        agent.store_model('model.hdf5')
+        with open('replaybuffer.pickle', 'wb') as rbf:
+            pickle.dump(replaybuffer, rbf)
 
     time.sleep(0.5)
-
 
