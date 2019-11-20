@@ -17,7 +17,7 @@ score_for_rows = {
 class TetrisEnvironment:
     """ a class responsible for the game's logic and printing the visuals to console """
 
-    actions = ['move_left', 'move_right', 'wait', 'drop', 'rotate_right', 'rotate_left']
+    actions = ['move_left', 'move_right', 'wait', 'drop']#, 'rotate_right', 'rotate_left']
 
     action_counter = {}
 
@@ -228,16 +228,9 @@ class TetrisEnvironment:
 
     @property
     def state(self):
-        if self.gameover:
-            return np.ones((self.rows*self.cols+4*4), np.int8)
         fg = self.grid.copy()
         if self.active_tetromino is not None:
             fg[self.at_row:self.at_row+self.active_tetromino.size,
                self.at_col:self.at_col+self.active_tetromino.size] -= self.active_tetromino.grid
         fg = np.clip(fg[:self.rows,self.padding:self.padding+self.cols], -1, 1)
-        ntg = self.next_tetromino.grid.copy()
-        ntg.resize((4,4))
-        return np.concatenate((
-                    np.clip(ntg.flatten(), 0, 1),
-                    fg.flatten(),
-                    )).astype(np.int8)
+        return np.expand_dims(fg,2) # add third axis of size 1 (could be other channels, but we currently only use 1)

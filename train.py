@@ -21,7 +21,7 @@ t_max_count = 0
 
 replaybuffer = ReplayBuffer(1000000)
 
-agent = DQNAgent(216,len(TetrisEnvironment.actions))
+agent = DQNAgent((20,10,1),len(TetrisEnvironment.actions))
 plotter = Plotter(datetime.now().strftime("%Y-%m-%d-%H:%M:%S"))
 
 
@@ -41,7 +41,7 @@ def draw_training_info(tetris_environment, reward, actionidx):
 
 while True:
 
-    tetris_environment = TetrisEnvironment(20,10,'o') if t_counter < t_max_count else TetrisEnvironment(20,10)
+    tetris_environment = TetrisEnvironment(20,10,'o')# if t_counter < t_max_count else TetrisEnvironment(20,10)
     t_counter += 1
 
     draw_board(tetris_environment)

@@ -18,19 +18,14 @@ class ReplayBuffer:
 
     def sample(self, sample_size):
 
-        state_size = np.size(self.experiences[0].state,0)
+        state_shape = self.experiences[0].state.shape
         batch = random.sample(self.experiences, sample_size)
 
+        states = np.stack([exp.state for exp in batch]).astype(np.float32)
         actions = np.array([exp.action for exp in batch])
         rewards = np.array([exp.reward for exp in batch], dtype=np.float32)
         finished = np.array(np.array([exp.finished for exp in batch]))
-
-        # collect states and next_states of the batch in
-        states      = np.zeros((sample_size, state_size), dtype=np.float32)
-        next_states = np.zeros((sample_size, state_size), dtype=np.float32)
-        for i, exp in enumerate(batch):
-            states[i,:] = exp.state
-            next_states[i,:] = exp.next_state
+        next_states = np.stack([exp.next_state for exp in batch]).astype(np.float32)
 
         return states, actions, rewards, finished, next_states
 

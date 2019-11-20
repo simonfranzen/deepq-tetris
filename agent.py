@@ -1,17 +1,17 @@
 from keras.models import Sequential, load_model
-from keras.layers import Dense
+from keras.layers import Dense, Flatten, Convolution2D
 import random
 import numpy as np
 
 class DQNAgent:
 
-    def __init__(self, state_size, num_actions,
+    def __init__(self, state_shape, num_actions,
                        model_filename = None,
                        gamma = 0.9,
                        epsilon_base=0.02, epsilon_add=0.98, epsilon_decay=0.99999,
-                       training_epochs=1, training_batch_size=500, target_model_lifetime=1000):
+                       training_epochs=1, training_batch_size=32, target_model_lifetime=1000):
 
-        self.state_size = state_size
+        self.state_shape = state_shape
         self.num_actions = num_actions
 
         self.gamma = gamma
@@ -48,8 +48,10 @@ class DQNAgent:
 
     def _create_model(self):
         new_model = Sequential()
-        new_model.add(Dense(32, input_dim=self.state_size, activation='relu'))
-        new_model.add(Dense(32, activation='relu'))
+        new_model.add(Convolution2D(input_shape=self.state_shape, filters=128, kernel_size=(4,4), activation='relu'))
+        new_model.add(Flatten())
+        new_model.add(Dense(128, activation='relu'))
+        new_model.add(Dense(128, activation='relu'))
         new_model.add(Dense(self.num_actions, activation='linear'))
         return new_model
 
@@ -64,7 +66,7 @@ class DQNAgent:
             return random.randint(0,self.num_actions-1)
         else:
             # feed the state through the policy model to get the predicted q(s,a)
-            q = self.policy_model.predict(state.reshape(1,state.size))
+            q = self.policy_model.predict(np.expand_dims(state, 0))
             # best action = a for which q(s,a) is largest
             return np.argmax(q)
 
@@ -77,11 +79,11 @@ class DQNAgent:
         # grab a sample of the replay buffer ...
         states, actions, rewards, finished, next_states = replaybuffer.sample(self.training_batch_size)
         # ... and check if everything is in the format we need
-        assert      states.shape == (self.training_batch_size, self.state_size)
+        assert      states.shape == tuple([self.training_batch_size] + [s for s in self.state_shape])
         assert     actions.shape == (self.training_batch_size,)
         assert     rewards.shape == (self.training_batch_size,)
         assert    finished.shape == (self.training_batch_size,)
-        assert next_states.shape == (self.training_batch_size, self.state_size)
+        assert next_states.shape == tuple([self.training_batch_size] + [s for s in self.state_shape])
 
         # estimate q(s',a) using the target model (s' is the state resulting from s if action a is performed)
         q_next = self.target_model.predict(next_states)
