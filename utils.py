@@ -7,6 +7,7 @@ clear = lambda: os.system('cls' if os.name=='nt' else 'clear')
 def draw_board(tetris_environment):
     clear()
     print(tetris_environment)
+    #print(tetris_environment.state[:,:,0])
 
 input_queue = queue.Queue()
 

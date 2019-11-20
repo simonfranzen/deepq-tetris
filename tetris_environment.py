@@ -111,7 +111,7 @@ class TetrisEnvironment:
                                              c:c+t.size] == 0)
 
     def wait(self):
-        reward = -0.1 # TODO the average discount reward for taking this actions. Where to take from?
+        reward = -0.01 # TODO the average discount reward for taking this actions. Where to take from?
         if self.active_tetromino is None:
             self._spawn_new_tetromino()
         else:
@@ -141,12 +141,17 @@ class TetrisEnvironment:
     def _calc_fitness_reward(self, cleared_rows):
         # heuristic function to determine if this turn was good or bad
         # https://codemyroad.wordpress.com/2013/04/14/tetris-ai-the-near-perfect-player/
-        # a * (Aggregate Height) + b * (Complete Lines) + c * (Holes) + d * (Bumpiness)
-        alpha   = -0.51
-        beta    = 0.76
-        gamma   = -0.36
-        delta   = -0.18
-        return alpha * self.aggregate_height + beta * cleared_rows + gamma * self.holes + delta * self.bumpiness
+        # a * (Aggregate Height) + b * (Complete Lines) + g * (Holes) + d * (Bumpiness) + o * (Height)
+        alpha   = -0.00
+        beta    =  0.00
+        gamma   = -1.00
+        delta   = -0.20
+        omega   = -0.50
+        return   alpha * self.aggregate_height \
+               + beta  * cleared_rows \
+               + gamma * self.holes \
+               + delta * self.bumpiness \
+               + omega * self.height
 
     def _clear_rows(self):
         num_cleared_rows = 0
@@ -178,7 +183,7 @@ class TetrisEnvironment:
         at_newcol = self.at_col + m
         if not self._tetromino_overlaps(self.active_tetromino, self.at_row, at_newcol):
             self.at_col = at_newcol
-        return -0.1 # TODO the average discount reward for taking this actions. Where to take from?
+        return -0.01 # TODO the average discount reward for taking this actions. Where to take from?
 
     def rotate_right(self):
         return self._rotate(-1)
@@ -190,7 +195,7 @@ class TetrisEnvironment:
         self.active_tetromino.rotate(s)
         if self._tetromino_overlaps(self.active_tetromino, self.at_row, self.at_col):
             self.active_tetromino.rotate(-s)
-        return -0.1 # TODO the average discount reward for taking this actions. Where to take from?
+        return -0.01 # TODO the average discount reward for taking this actions. Where to take from?
 
 
     def _height_for_col(self, col):
@@ -205,6 +210,10 @@ class TetrisEnvironment:
         for c in range(self.cols): # not the last col
             aggregate_height += self._height_for_col(c)
         return aggregate_height
+
+    @property
+    def height(self):
+        return max([self._height_for_col(c) for c in range(self.cols)])
 
     @property
     def holes(self):

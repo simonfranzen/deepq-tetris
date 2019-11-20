@@ -8,7 +8,7 @@ class DQNAgent:
     def __init__(self, state_shape, num_actions,
                        model_filename = None,
                        gamma = 0.9,
-                       epsilon_base=0.02, epsilon_add=0.98, epsilon_decay=0.99999,
+                       epsilon_base=0.05, epsilon_add=0.95, epsilon_decay=0.999995,
                        training_epochs=1, training_batch_size=32, target_model_lifetime=1000):
 
         self.state_shape = state_shape
