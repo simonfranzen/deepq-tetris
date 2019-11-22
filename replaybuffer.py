@@ -17,6 +17,8 @@ class ReplayBuffer:
     def __init__(self, max_size, no_shortterm_duplicates=False, protected_reward=None):
         self.max_size = max_size
         self.experiences = []
+        self.no_shortterm_duplicates = no_shortterm_duplicates
+        self.protected_reward = protected_reward
 
     def add(self, experience):
         if self.no_shortterm_duplicates and any(experience_is_equivalent(past_experience,experience) for past_experience in self.experiences[-10:]):

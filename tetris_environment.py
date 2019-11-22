@@ -19,9 +19,7 @@ class TetrisEnvironment:
 
     actions = ['move_left', 'move_right', 'wait', 'drop']#, 'rotate_right', 'rotate_left']
 
-    action_counter = {}
-
-    def __init__(self, rows=20, cols=10, t=None):
+    def __init__(self, rows=20, cols=10, types=['I','o','z','z_rev','l','l_rev','t']):
 
         # state of the grid
         self.gameover = False
@@ -43,10 +41,10 @@ class TetrisEnvironment:
         self.last_bumpiness = 0
         self.last_holes = 0
         self.last_fitness_reward = 0
-        self.t = t
+        self.types = types
 
         # already determine which tetromimo we want next
-        self.next_tetromino = Tetromino(self.t)
+        self.next_tetromino = Tetromino(self.types)
 
         self.wait()
 
@@ -97,7 +95,7 @@ class TetrisEnvironment:
         """ creates a new random tetromino, except if gameover is true"""
         assert self.active_tetromino is None
         self.active_tetromino = self.next_tetromino
-        self.next_tetromino = Tetromino(self.t)
+        self.next_tetromino = Tetromino(self.types)
         self.at_row = 0
         self.at_col = random.randint(self.padding, self.padding+self.cols-2-self.next_tetromino.size)
         self.gameover = self._tetromino_overlaps(self.active_tetromino,

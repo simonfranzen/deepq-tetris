@@ -3,7 +3,7 @@ import numpy as np
 
 tetromino_grids = {
 
-    'i': np.array([[0,1,0,0],
+    'I': np.array([[0,1,0,0],
                    [0,1,0,0],
                    [0,1,0,0],
                    [0,1,0,0]], np.int8),
@@ -29,23 +29,25 @@ tetromino_grids = {
 
     't': np.array([[0,0,0],
                    [7,7,7],
-                   [0,7,0]], np.int8)
+                   [0,7,0]], np.int8),
+
+    'i': np.array([[1,0],
+                   [1,0]], np.int8),
+
+    '.': np.array([[1]], np.int8)
 }
 
 
 class Tetromino:
 
-    def __init__(self, t= None):
-        if t == None or t not in tetromino_grids:
-            self.type = random.choice(list(tetromino_grids.keys()))
-        else:
-            self.type = t
+    def __init__(self, types=['I','o','z','z_rev','l','l_rev','t']):
+        self.type = random.choice(types)
         self.grid = tetromino_grids[self.type]
         self.rotate(random.randint(0,4))
 
 
     def rotate(self, steps):
-        if self.type != 'o':
+        if self.type != 'o' and self.type != '.':
             self.grid = np.rot90(self.grid, steps)
 
     @property
