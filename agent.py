@@ -1,5 +1,5 @@
 from keras.models import Sequential, load_model
-from keras.layers import Dense, Flatten, Convolution2D
+from keras.layers import Dense, Flatten, Convolution2D, MaxPooling2D
 import random
 import numpy as np
 
@@ -7,9 +7,9 @@ class DQNAgent:
 
     def __init__(self, state_shape, num_actions,
                        model_filename = None,
-                       gamma = 0.9,
-                       epsilon_base=0.05, epsilon_add=0.95, epsilon_decay=0.999995,
-                       training_epochs=1, training_batch_size=32, target_model_lifetime=1000):
+                       gamma = 0.95,
+                       epsilon_base=0.15, epsilon_add=0.85, epsilon_decay=0.999999,
+                       training_epochs=1, training_batch_size=256, target_model_lifetime=1000):
 
         self.state_shape = state_shape
         self.num_actions = num_actions
@@ -48,10 +48,12 @@ class DQNAgent:
 
     def _create_model(self):
         new_model = Sequential()
-        new_model.add(Convolution2D(input_shape=self.state_shape, filters=128, kernel_size=(4,4), activation='relu'))
+        new_model.add(Convolution2D(input_shape=self.state_shape, filters=64, \
+                                    kernel_size=(4,4), strides=(2,2), activation='relu'))
+        new_model.add(MaxPooling2D(pool_size=(2,2)))
         new_model.add(Flatten())
-        new_model.add(Dense(128, activation='relu'))
-        new_model.add(Dense(128, activation='relu'))
+        new_model.add(Dense(64, activation='relu'))
+        new_model.add(Dense(64, activation='relu'))
         new_model.add(Dense(self.num_actions, activation='linear'))
         return new_model
 
