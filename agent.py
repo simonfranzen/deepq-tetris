@@ -7,13 +7,14 @@ class DQNAgent:
 
     def __init__(self, state_shape, num_actions,
                        model_filename = None,
-                       gamma = 0.95,
+                       double_dqn = False, gamma = 0.95,
                        epsilon_base=0.15, epsilon_add=0.85, epsilon_decay=0.999999,
                        training_epochs=1, training_batch_size=256, target_model_lifetime=1000):
 
         self.state_shape = state_shape
         self.num_actions = num_actions
 
+        self.double_dqn = double_dqn
         self.gamma = gamma
 
         self.epsilon_base = epsilon_base
@@ -91,8 +92,20 @@ class DQNAgent:
         q_next = self.target_model.predict(next_states)
         assert q_next.shape == (self.training_batch_size, self.num_actions)
 
-        # compute max_a' q(s',a') (that is the q value of the best action in the next state)
-        q_next_max = np.amax(q_next, axis=1)
+        if self.double_dqn:
+
+            # use the policy model to determine the best action in the next state: argmax_a' q_pol(s',a')
+            q_next_selector = self.policy_model.predict(next_states)
+            action_next_max = np.argmax(q_next_selector, axis=1)
+
+            # use the q value of that action from the target network: q_tgt(s', argmax_a' q_pol(s',a'))
+            q_next_max = np.array([ q_next[i,action_next_max[i]] for i in range(self.training_batch_size) ])
+
+        else:
+
+            # compute max_a' q(s',a') (that is the q value of the best action in the next state)
+            q_next_max = np.amax(q_next, axis=1)
+
         assert q_next_max.shape == (self.training_batch_size,)
 
         # estimate q(s,a) using the policy model

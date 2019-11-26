@@ -41,7 +41,7 @@ def draw_training_info(tetris_environment, reward, actionidx):
 
 while True:
 
-    tetris_environment = TetrisEnvironment(20,10,'o')# if t_counter < t_max_count else TetrisEnvironment(20,10)
+    tetris_environment = TetrisEnvironment(20, 10, types=['o'])
     t_counter += 1
 
     draw_board(tetris_environment)
