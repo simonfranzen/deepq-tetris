@@ -7,7 +7,7 @@ class DQNAgent:
 
     def __init__(self, state_shape, num_actions,
                        model_filename = None,
-                       double_dqn = False, gamma = 0.95,
+                       double_dqn = True, gamma = 0.95,
                        epsilon_base=0.15, epsilon_add=0.85, epsilon_decay=0.999999,
                        training_epochs=1, training_batch_size=32, target_model_lifetime=1000):
 
