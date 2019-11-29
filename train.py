@@ -104,5 +104,5 @@ while True:
         with open('replaybuffer.pickle', 'wb') as rbf:
             pickle.dump(replaybuffer, rbf)
 
-    time.sleep(0.5)
+    time.sleep(0.1)
 

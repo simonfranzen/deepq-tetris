@@ -9,7 +9,7 @@ class DQNAgent:
                        model_filename = None,
                        double_dqn = False, gamma = 0.95,
                        epsilon_base=0.15, epsilon_add=0.85, epsilon_decay=0.999999,
-                       training_epochs=1, training_batch_size=256, target_model_lifetime=1000):
+                       training_epochs=1, training_batch_size=32, target_model_lifetime=1000):
 
         self.state_shape = state_shape
         self.num_actions = num_actions
